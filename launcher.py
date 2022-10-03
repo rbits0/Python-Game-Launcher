@@ -1,4 +1,20 @@
 import os, re, json
+import shutil
+
+steam_path = None
+
+
+def readConfig(config_folder):
+    global steam_path
+    if not os.path.exists(os.path.join(config_folder, 'config.json')):
+        createConfig(config_folder)
+    
+    if not os.path.exists(os.path.join(config_folder, 'artwork')):
+        os.mkdir(os.path.join(config_folder, 'artwork'))
+    
+    with open(os.path.join(config_folder, 'config.json'), 'r') as file:
+        config = json.load(file)
+        steam_path = config['steamPath']
 
 
 def createConfig(config_folder):
@@ -38,7 +54,7 @@ def getSteamTitles(steam_path) -> dict:
                     with open(os.path.join(library_path, 'steamapps', 'appmanifest_' + id + '.acf'), 'r') as app_manifest:
                         for manifest_line in app_manifest:
                             if manifest_line.count('"name"') > 0:
-                                titles[id] = manifest_line.split('"')[3]
+                                titles[id] = (manifest_line.split('"')[3], library_path)
 
                 app_ids = []
                 library_path = None
@@ -51,24 +67,26 @@ def getSteamTitles(steam_path) -> dict:
 
 
 def createLibrary(config_folder) -> dict:
-    with open(os.path.join(config_folder, 'config.json'), 'r') as file:
-        config = json.load(file)
-        steam_path = config['steamPath']
-    
     print('To finish, type \'q\'')
 
     steam_titles = getSteamTitles(steam_path)
     
     game_library = []
     
-    for id, name in steam_titles.items():
+    game_id = 0
+    
+    for id, data in steam_titles.items():
+        name = data[0]
+        library_path = data[1]
+
         user_input = input(f'Add {name} to library? [Y/n]')
         
         if user_input.lower() == 'q':
             break
 
         if user_input.lower() != 'n':
-            game_library.append({'name': name, 'appID': id})
+            game_library.append({'name': name, 'appID': id, 'libraryPath': library_path, 'id': game_id})
+            game_id += 1
             
             with open(os.path.join(config_folder, 'games.json'), 'w') as file:
                 json.dump(game_library, file, indent='\t')
@@ -89,24 +107,32 @@ def getLibrary(config_folder) -> dict:
     return game_library
 
 
+def getSteamArtwork(game_library, config_folder):
+    for game in game_library:
+        library_image_path = os.path.join(steam_path, 'appcache', 'librarycache', game['appID'] + '_library_600x900.jpg')
+        library_banner_path = os.path.join(steam_path, 'appcache', 'librarycache', game['appID'] + '_library_hero.jpg')
+        if os.path.exists(library_image_path):
+            try:
+                shutil.copyfile(library_image_path, os.path.join(config_folder, 'artwork', str(game['id']) + '_library_image.jpg'))
+            except shutil.SameFileError:
+                pass
+        
+        if os.path.exists(library_banner_path):
+            try:
+                shutil.copyfile(library_banner_path, os.path.join(config_folder, 'artwork', str(game['id']) + '_library_banner.jpg'))
+            except shutil.SameFileError:
+                pass
+
+
 if __name__ == '__main__':
     config_folder = os.path.expanduser('~/.config/PythonGameLauncher')
     
     if not os.path.exists(config_folder):
         os.mkdir(config_folder)
 
-    if not os.path.exists(os.path.join(config_folder, 'config.json')):
-        createConfig(config_folder)
-    
-
-
-    # testList = []
-    # for item in steam_titles.items():
-    #     # print(item)
-    #     testList.append({'name': item[1], 'appID': item[0]})
-    
-    # with open(os.path.join(config_folder, 'games.json'), 'w') as file:
-    #     file.write(json.dumps(testList, indent=4))
+    readConfig(config_folder)
     
     game_library = getLibrary(config_folder)
     print(game_library)
+    
+    getSteamArtwork(game_library, config_folder)
