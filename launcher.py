@@ -1,7 +1,22 @@
 import os, re, json
 
 
-def getSteamTitles(steam_path) -> list:
+def createConfig(config_folder):
+    steam_path = input('Please enter the path to the steam directory (default = ~/.steam/steam)')
+    if steam_path == '':
+        steam_path = os.path.expanduser('~/.steam/steam')
+    else:
+        steam_path = os.path.expanduser(steam_path)
+    
+    config = {'steamPath': steam_path}
+
+    with open(os.path.join(config_folder, 'config.json'), 'w') as file:
+        json.dump(config, file, indent='\t')
+    
+    return
+
+
+def getSteamTitles(steam_path) -> dict:
     libraryfolders_path = os.path.join(steam_path, 'steamapps', 'libraryfolders.vdf')
 
     with open(libraryfolders_path, 'r') as file:
@@ -35,8 +50,63 @@ def getSteamTitles(steam_path) -> list:
     return titles
 
 
-if __name__ == '__main__':
-    steam_path = os.path.expanduser('~/.steam/steam')
-    config_folder = os.path.expanduser('~/.config/PythonGameLauncher')
+def createLibrary(config_folder) -> dict:
+    with open(os.path.join(config_folder, 'config.json'), 'r') as file:
+        config = json.load(file)
+        steam_path = config['steamPath']
+    
+    print('To finish, type \'q\'')
 
     steam_titles = getSteamTitles(steam_path)
+    
+    game_library = []
+    
+    for id, name in steam_titles.items():
+        user_input = input(f'Add {name} to library? [Y/n]')
+        
+        if user_input.lower() == 'q':
+            break
+
+        if user_input.lower() != 'n':
+            game_library.append({'name': name, 'appID': id})
+            
+            with open(os.path.join(config_folder, 'games.json'), 'w') as file:
+                json.dump(game_library, file, indent='\t')
+
+    return game_library
+
+
+def getLibrary(config_folder) -> dict:
+    games_json_path = os.path.join(config_folder, 'games.json')
+
+    if os.path.exists(games_json_path) and os.path.getsize(games_json_path) > 0:
+        with open(os.path.join(config_folder, 'games.json'), 'r') as file:
+            game_library = json.load(file)
+        
+        return game_library
+    
+    game_library = createLibrary(config_folder)
+    return game_library
+
+
+if __name__ == '__main__':
+    config_folder = os.path.expanduser('~/.config/PythonGameLauncher')
+    
+    if not os.path.exists(config_folder):
+        os.mkdir(config_folder)
+
+    if not os.path.exists(os.path.join(config_folder, 'config.json')):
+        createConfig(config_folder)
+    
+
+
+    # testList = []
+    # for item in steam_titles.items():
+    #     # print(item)
+    #     testList.append({'name': item[1], 'appID': item[0]})
+    
+    # with open(os.path.join(config_folder, 'games.json'), 'w') as file:
+    #     file.write(json.dumps(testList, indent=4))
+    
+    game_library = getLibrary(config_folder)
+    print(game_library)
