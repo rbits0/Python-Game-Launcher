@@ -1,25 +1,29 @@
 import os, re, json
 import shutil
+from venv import create
 
 steam_path = None
 CONFIG_FOLDER = os.path.expanduser('~/.config/PythonGameLauncher')
+CONFIG_FILE = os.path.join(CONFIG_FOLDER, 'config.json')
+GAMES_FILE = os.path.join(CONFIG_FOLDER, 'games.json')
+ARTWORK_FOLDER = os.path.join(CONFIG_FOLDER, 'artwork')
 
 
 def readConfig():
     global steam_path
-    if not os.path.exists(os.path.join(CONFIG_FOLDER, 'config.json')):
-        createConfig()
+    if not os.path.exists(ARTWORK_FOLDER):
+        os.mkdir(ARTWORK_FOLDER)
+
+    if not os.path.exists(CONFIG_FILE):
+        return False
     
-    if not os.path.exists(os.path.join(CONFIG_FOLDER, 'artwork')):
-        os.mkdir(os.path.join(CONFIG_FOLDER, 'artwork'))
-    
-    with open(os.path.join(CONFIG_FOLDER, 'config.json'), 'r') as file:
+    with open(CONFIG_FILE, 'r') as file:
         config = json.load(file)
         steam_path = config['steamPath']
+    
+    return True
 
-
-def createConfig():
-    steam_path = input('Please enter the path to the steam directory (default = ~/.steam/steam)')
+def createConfig(steam_path):
     if steam_path == '':
         steam_path = os.path.expanduser('~/.steam/steam')
     else:
@@ -27,10 +31,10 @@ def createConfig():
     
     config = {'steamPath': steam_path}
 
-    with open(os.path.join(CONFIG_FOLDER, 'config.json'), 'w') as file:
+    with open(CONFIG_FILE, 'w') as file:
         json.dump(config, file, indent='\t')
     
-    return
+    return steam_path
 
 
 def getSteamTitles(steam_path) -> dict:
@@ -96,42 +100,51 @@ def createLibrary() -> dict:
 
 
 def getLibrary() -> dict:
-    games_json_path = os.path.join(CONFIG_FOLDER, 'games.json')
 
-    if os.path.exists(games_json_path) and os.path.getsize(games_json_path) > 0:
-        with open(os.path.join(CONFIG_FOLDER, 'games.json'), 'r') as file:
+    if os.path.exists(GAMES_FILE) and os.path.getsize(GAMES_FILE) > 0:
+        with open(GAMES_FILE, 'r') as file:
             game_library = json.load(file)
         
         return game_library
     
-    game_library = createLibrary()
-    return game_library
+    with open(GAMES_FILE, 'w') as file:
+        json.dump([], file, indent='\t')
+    return []
 
 
-def getSteamArtwork(game_library):
+def getSteamArtwork(game):
+    library_image_path = os.path.join(steam_path, 'appcache', 'librarycache', game['appID'] + '_library_600x900.jpg')
+    library_banner_path = os.path.join(steam_path, 'appcache', 'librarycache', game['appID'] + '_library_hero.jpg')
+    if os.path.exists(library_image_path):
+        try:
+            shutil.copyfile(library_image_path, os.path.join(ARTWORK_FOLDER, str(game['id']) + '_library_image.jpg'))
+        except shutil.SameFileError:
+            pass
+    
+    if os.path.exists(library_banner_path):
+        try:
+            shutil.copyfile(library_banner_path, os.path.join(ARTWORK_FOLDER, str(game['id']) + '_library_banner.jpg'))
+        except shutil.SameFileError:
+            pass
+
+
+
+def getLibrarySteamArtwork(game_library):
     for game in game_library:
-        library_image_path = os.path.join(steam_path, 'appcache', 'librarycache', game['appID'] + '_library_600x900.jpg')
-        library_banner_path = os.path.join(steam_path, 'appcache', 'librarycache', game['appID'] + '_library_hero.jpg')
-        if os.path.exists(library_image_path):
-            try:
-                shutil.copyfile(library_image_path, os.path.join(CONFIG_FOLDER, 'artwork', str(game['id']) + '_library_image.jpg'))
-            except shutil.SameFileError:
-                pass
+        getSteamArtwork(game)
         
-        if os.path.exists(library_banner_path):
-            try:
-                shutil.copyfile(library_banner_path, os.path.join(CONFIG_FOLDER, 'artwork', str(game['id']) + '_library_banner.jpg'))
-            except shutil.SameFileError:
-                pass
-
 
 if __name__ == '__main__':
     if not os.path.exists(CONFIG_FOLDER):
         os.mkdir(CONFIG_FOLDER)
 
-    readConfig()
+    if not readConfig():
+        steam_path = input('Please enter the path to the steam directory (default = ~/.steam/steam)')
+        steam_path = createConfig(steam_path)
     
     game_library = getLibrary()
-    print(game_library)
+    if len(game_library) == 0:
+        game_library = createLibrary()
+    # print(game_library)
     
-    getSteamArtwork(game_library)
+    getLibrarySteamArtwork(game_library)
