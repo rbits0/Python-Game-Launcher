@@ -1,6 +1,5 @@
 import os, re, json
 import shutil
-from venv import create
 
 steam_path = None
 CONFIG_FOLDER = os.path.expanduser('~/.config/PythonGameLauncher')
@@ -37,7 +36,7 @@ def createConfig(steam_path):
     return steam_path
 
 
-def getSteamTitles(steam_path) -> dict:
+def getSteamTitles() -> dict:
     libraryfolders_path = os.path.join(steam_path, 'steamapps', 'libraryfolders.vdf')
 
     with open(libraryfolders_path, 'r') as file:
@@ -55,11 +54,11 @@ def getSteamTitles(steam_path) -> dict:
                 continue
             
             if line == '\t\t}\n':
-                for id in app_ids:
-                    with open(os.path.join(library_path, 'steamapps', 'appmanifest_' + id + '.acf'), 'r') as app_manifest:
+                for appID in app_ids:
+                    with open(os.path.join(library_path, 'steamapps', 'appmanifest_' + appID + '.acf'), 'r') as app_manifest:
                         for manifest_line in app_manifest:
                             if manifest_line.count('"name"') > 0:
-                                titles[id] = (manifest_line.split('"')[3], library_path)
+                                titles[appID] = (manifest_line.split('"')[3], library_path)
 
                 app_ids = []
                 library_path = None
@@ -71,7 +70,7 @@ def getSteamTitles(steam_path) -> dict:
     return titles
 
 
-def addGame(game_library, name, id, library_path, game_id = None):
+def addGame(game_library, name, appID, library_path, game_id = None):
     # First, find available id
     if not game_id:
         if len(game_library) == 0:
@@ -79,43 +78,35 @@ def addGame(game_library, name, id, library_path, game_id = None):
         else:
             game_id = game_library[-1]['id'] + 1
     
-    game_library.append({'name': name, 'appID': id, 'libraryPath': library_path, 'id':game_id})
+    game_library.append({'name': name, 'appID': appID, 'libraryPath': library_path, 'id':game_id})
 
 
 def saveLibrary(game_library):
+    game_library.sort(key = lambda x: x['name'].lower().replace('the ', ''))
+    
     with open(GAMES_FILE, 'w') as file:
         json.dump(game_library, file, indent='\t')
 
 
-def createLibrary() -> dict:
-    print('To finish, type \'q\'')
-
-    steam_titles = getSteamTitles(steam_path)
+def updateLibrary(game_library):
+    steam_titles = getSteamTitles()
     
-    game_library = []
-    
-    game_id = 0
-    
-    for id, data in steam_titles.items():
+    for appID, data in steam_titles.items():
         name = data[0]
         library_path = data[1]
 
-        user_input = input(f'Add {name} to library? [Y/n]')
+        if appID in [i['appID'] for i in game_library]:
+            continue
         
+        user_input = input(f'Add {name} to library? [Y/n]')
+
         if user_input.lower() == 'q':
             break
 
         if user_input.lower() != 'n':
-            game_library.append({'name': name, 'appID': id, 'libraryPath': library_path, 'id': game_id})
-            game_id += 1
-            
-    
-    game_library.sort(key = lambda x: x['name'].lower().replace('the ', ''))
+            addGame(game_library, name, appID, library_path)
 
-    with open(GAMES_FILE, 'w') as file:
-        json.dump(game_library, file, indent='\t')
-
-    return game_library
+    saveLibrary(game_library)
 
 
 def getLibrary() -> dict:
@@ -147,7 +138,6 @@ def getSteamArtwork(game):
             pass
 
 
-
 def getLibrarySteamArtwork(game_library):
     for game in game_library:
         getSteamArtwork(game)
@@ -162,8 +152,7 @@ if __name__ == '__main__':
         steam_path = createConfig(steam_path)
     
     game_library = getLibrary()
-    if len(game_library) == 0:
-        game_library = createLibrary()
+    updateLibrary(game_library)
     print([i['name'] for i in game_library])
     print(game_library)
     
