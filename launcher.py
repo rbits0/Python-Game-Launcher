@@ -93,8 +93,11 @@ def createLibrary() -> dict:
             game_library.append({'name': name, 'appID': id, 'libraryPath': library_path, 'id': game_id})
             game_id += 1
             
-            with open(os.path.join(CONFIG_FOLDER, 'games.json'), 'w') as file:
-                json.dump(game_library, file, indent='\t')
+    
+    game_library.sort(key = lambda x: x['name'].lower().replace('the ', ''))
+
+    with open(os.path.join(CONFIG_FOLDER, 'games.json'), 'w') as file:
+        json.dump(game_library, file, indent='\t')
 
     return game_library
 
@@ -145,6 +148,6 @@ if __name__ == '__main__':
     game_library = getLibrary()
     if len(game_library) == 0:
         game_library = createLibrary()
-    # print(game_library)
+    print([i['name'] for i in game_library])
     
     getLibrarySteamArtwork(game_library)
