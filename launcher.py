@@ -71,6 +71,22 @@ def getSteamTitles(steam_path) -> dict:
     return titles
 
 
+def addGame(game_library, name, id, library_path, game_id = None):
+    # First, find available id
+    if not game_id:
+        if len(game_library) == 0:
+            game_id = 0
+        else:
+            game_id = game_library[-1]['id'] + 1
+    
+    game_library.append({'name': name, 'appID': id, 'libraryPath': library_path, 'id':game_id})
+
+
+def saveLibrary(game_library):
+    with open(GAMES_FILE, 'w') as file:
+        json.dump(game_library, file, indent='\t')
+
+
 def createLibrary() -> dict:
     print('To finish, type \'q\'')
 
@@ -96,7 +112,7 @@ def createLibrary() -> dict:
     
     game_library.sort(key = lambda x: x['name'].lower().replace('the ', ''))
 
-    with open(os.path.join(CONFIG_FOLDER, 'games.json'), 'w') as file:
+    with open(GAMES_FILE, 'w') as file:
         json.dump(game_library, file, indent='\t')
 
     return game_library
@@ -149,5 +165,6 @@ if __name__ == '__main__':
     if len(game_library) == 0:
         game_library = createLibrary()
     print([i['name'] for i in game_library])
+    print(game_library)
     
     getLibrarySteamArtwork(game_library)
