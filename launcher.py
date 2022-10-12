@@ -1,3 +1,4 @@
+import math
 import os, re, json
 import shutil
 
@@ -103,7 +104,7 @@ def saveLibrary(game_library):
         json.dump(game_library, file, indent='\t')
 
 
-def updateLibrary(game_library):
+def updateSteamLibrary(game_library):
     steam_titles = getSteamTitles()
     
     games = {}
@@ -159,6 +160,28 @@ def getSteamArtwork(appID, game_id):
 def getLibrarySteamArtwork(game_library):
     for game in game_library:
         getSteamArtwork(game['appID'], game['id'])
+
+
+def cliMenu(game_library):
+    userInput = input('''Please choose an option:
+    [v] View library
+    [u] Add games from steam
+    [i] Refresh images from steam library
+    [a] Add game manually
+    [l] Launch game
+    [q] Quit
+
+''')
+
+    if userInput == 'v':
+        name_length = max([len(x['name']) for x in game_library])
+        appID_length = max([len(x['appID']) for x in game_library])
+        location_length = max([len(x['libraryPath']) for x in game_library])
+
+        print(f'{"Name":<{name_length}}  {"appID":<{appID_length}}  {"Location":<{location_length}}')
+        print('-'*(name_length + appID_length + location_length + 4))
+        for game in game_library:
+            print(f'{game["name"]:<{name_length}}  {game["appID"]:<{appID_length}}  {game["libraryPath"]:<{location_length}}')
         
 
 if __name__ == '__main__':
@@ -170,6 +193,7 @@ if __name__ == '__main__':
         steam_path = createConfig(steam_path)
     
     game_library = getLibrary()
-    updateLibrary(game_library)
-    print([i['name'] for i in game_library])
-    print(game_library)
+    # print([i['name'] for i in game_library])
+    # print(game_library)
+
+    cliMenu(game_library)
