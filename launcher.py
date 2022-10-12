@@ -76,7 +76,7 @@ def addGame(game_library, name, appID, library_path, game_id = None):
         if len(game_library) == 0:
             game_id = 0
         else:
-            game_id = game_library[-1]['id'] + 1
+            game_id = max([x['id'] for x in game_library]) + 1
     
     game_library.append({'name': name, 'appID': appID, 'libraryPath': library_path, 'id':game_id})
 
