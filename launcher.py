@@ -81,6 +81,19 @@ def addGame(game_library, name, appID, library_path, game_id = None):
     game_library.append({'name': name, 'appID': appID, 'libraryPath': library_path, 'id':game_id})
 
 
+def addGames(game_library, games, library_path):
+    # First, find available id
+    if len(game_library) == 0:
+        game_id = 0
+    else:
+        game_id = max([x['id'] for x in game_library]) + 1
+
+    for appID, data in games.items():
+        game_library.append({'name': data[0], 'appID': appID, 'libraryPath': library_path, 'id': game_id})
+        game_id += 1
+   
+
+
 def saveLibrary(game_library):
     game_library.sort(key = lambda x: x['name'].lower().replace('the ', ''))
     
@@ -91,6 +104,8 @@ def saveLibrary(game_library):
 def updateLibrary(game_library):
     steam_titles = getSteamTitles()
     
+    games = {}
+
     for appID, data in steam_titles.items():
         name = data[0]
         library_path = data[1]
@@ -104,8 +119,9 @@ def updateLibrary(game_library):
             break
 
         if user_input.lower() != 'n':
-            addGame(game_library, name, appID, library_path)
-
+            games[appID] = data
+    
+    addGames(game_library, games, library_path)
     saveLibrary(game_library)
 
 
