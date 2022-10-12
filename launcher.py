@@ -90,6 +90,8 @@ def addGames(game_library, games, library_path):
 
     for appID, data in games.items():
         game_library.append({'name': data[0], 'appID': appID, 'libraryPath': library_path, 'id': game_id})
+        getSteamArtwork(appID, game_id)
+
         game_id += 1
    
 
@@ -138,25 +140,25 @@ def getLibrary() -> dict:
     return []
 
 
-def getSteamArtwork(game):
-    library_image_path = os.path.join(steam_path, 'appcache', 'librarycache', game['appID'] + '_library_600x900.jpg')
-    library_banner_path = os.path.join(steam_path, 'appcache', 'librarycache', game['appID'] + '_library_hero.jpg')
+def getSteamArtwork(appID, game_id):
+    library_image_path = os.path.join(steam_path, 'appcache', 'librarycache', appID + '_library_600x900.jpg')
+    library_banner_path = os.path.join(steam_path, 'appcache', 'librarycache', appID + '_library_hero.jpg')
     if os.path.exists(library_image_path):
         try:
-            shutil.copyfile(library_image_path, os.path.join(ARTWORK_FOLDER, str(game['id']) + '_library_image.jpg'))
+            shutil.copyfile(library_image_path, os.path.join(ARTWORK_FOLDER, str(game_id) + '_library_image.jpg'))
         except shutil.SameFileError:
             pass
     
     if os.path.exists(library_banner_path):
         try:
-            shutil.copyfile(library_banner_path, os.path.join(ARTWORK_FOLDER, str(game['id']) + '_library_banner.jpg'))
+            shutil.copyfile(library_banner_path, os.path.join(ARTWORK_FOLDER, str(game_id) + '_library_banner.jpg'))
         except shutil.SameFileError:
             pass
 
 
 def getLibrarySteamArtwork(game_library):
     for game in game_library:
-        getSteamArtwork(game)
+        getSteamArtwork(game['appID'], game['id'])
         
 
 if __name__ == '__main__':
@@ -171,5 +173,3 @@ if __name__ == '__main__':
     updateLibrary(game_library)
     print([i['name'] for i in game_library])
     print(game_library)
-    
-    getLibrarySteamArtwork(game_library)
