@@ -234,7 +234,6 @@ def cliMenu(game_library):
     [a] Add game manually
     [t] Test option
     [q] Quit
-
 ''')
 
     if userInput == 'v':
@@ -264,7 +263,7 @@ def cliMenu(game_library):
         launchGame(game_library[7])
         pass
     elif userInput == 'q':
-        return
+        return True
                 
 
 if __name__ == '__main__':
@@ -279,7 +278,10 @@ if __name__ == '__main__':
     # print([i['name'] for i in game_library])
     # print(game_library)
 
-    cliMenu(game_library)
+    while True:
+        if cliMenu(game_library):
+            break
+        print()
     
     addNativeGame(game_library, 'test', '/home/riley/Documents/Applications/fusee-interfacee-tk-linux/App For Linux/PayloadInjector')
     saveLibrary(game_library)
