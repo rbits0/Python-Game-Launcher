@@ -1,6 +1,7 @@
 import math
 import os, re, json
 import shutil
+import subprocess
 
 steam_path = None
 CONFIG_FOLDER = os.path.expanduser('~/.config/PythonGameLauncher')
@@ -162,27 +163,98 @@ def getLibrarySteamArtwork(game_library):
         getSteamArtwork(game['appID'], game['id'])
 
 
+def launchGame(game):
+    print(f'Launching {game["name"]}')
+
+    command = f'steam steam://rungameid/{game["appID"]}'
+    subprocess.Popen(command, shell=True)
+
+
+def printLibrary(game_library):
+    index_length = len(str(len(game_library)))
+    name_length = max([len(x['name']) for x in game_library])
+    appID_length = max([len(x['appID']) for x in game_library])
+    location_length = max([len(x['libraryPath']) for x in game_library])
+
+    print(f'{" " * index_length}  {"Name":<{name_length}}')
+    # print('-'*(index_length + name_length + appID_length + location_length + 6))
+    print('-'*(index_length + name_length + 2))
+    for i, game in enumerate(game_library):
+        # print(f'{i + 1:>{index_length}}  {game["name"]:<{name_length}}  {game["appID"]:>{appID_length}}  {game["libraryPath"]:<{location_length}}')
+        print(f'{i + 1:>{index_length}}  {game["name"]:<{name_length}}')
+    
+    user_input = input('\nPlease select a game, or type m to return to the menu: ')
+    
+    if user_input == 'm':
+        return
+    
+    if not user_input.isdigit():
+        raise TypeError('Not a valid number')
+    
+    user_input = int(user_input)
+        
+    if user_input <1 or user_input > len(game_library):
+        raise IndexError('Game not found')
+    
+    game = game_library[user_input - 1]
+
+    print(f'''
+{game['name']}
+appID: {game['appID']}
+Location: {game['libraryPath']}
+[l] Launch game
+[m] Return to menu''')
+
+    user_input = input()
+
+    if user_input == 'm':
+        return
+    
+    if user_input == 'l':
+        launchGame(game)
+    
+
+
 def cliMenu(game_library):
     userInput = input('''Please choose an option:
     [v] View library
-    [u] Add games from steam
+    [s] Add games from steam
     [i] Refresh images from steam library
     [a] Add game manually
-    [l] Launch game
+    [t] Test option
     [q] Quit
 
 ''')
 
     if userInput == 'v':
-        name_length = max([len(x['name']) for x in game_library])
-        appID_length = max([len(x['appID']) for x in game_library])
-        location_length = max([len(x['libraryPath']) for x in game_library])
-
-        print(f'{"Name":<{name_length}}  {"appID":<{appID_length}}  {"Location":<{location_length}}')
-        print('-'*(name_length + appID_length + location_length + 4))
-        for game in game_library:
-            print(f'{game["name"]:<{name_length}}  {game["appID"]:<{appID_length}}  {game["libraryPath"]:<{location_length}}')
+        while True:
+            try:
+                printLibrary(game_library)
+            except TypeError as excpt:
+                print(excpt)
+                continue
+            except IndexError as excpt:
+                print(excpt)
+                continue
+            break
+    elif userInput == 's':
+        updateSteamLibrary(game_library)
+    elif userInput == 'i':
+        getLibrarySteamArtwork(game_library)
+    elif userInput == 'a':
+        name = input('Enter name:\n')
+        # TODO: Add support for non-steam games
+        appID = input('Enter appID:\n')
+        # TODO: Add database of steam libraries to select from
+        library_path = os.path.expanduser(input('Enter path to steam library:\n'))
         
+        addGame(game_library, name, appID, library_path)
+    elif userInput == 't':
+        launchGame(game_library[7])
+        pass
+    elif userInput == 'q':
+        return
+                
 
 if __name__ == '__main__':
     if not os.path.exists(CONFIG_FOLDER):
