@@ -72,6 +72,10 @@ def getSteamTitles() -> dict:
     return titles
 
 
+def getLibrarySteamTitles(game_library) -> list: # Returns only games in library which are from steam
+    return filter(lambda x: x['source'] == 'steam', game_library)
+
+
 def getNewID(game_library) -> int:
     if len(game_library) == 0:
         return 0
@@ -94,15 +98,13 @@ def addNativeGame(game_library, name, file_path, game_id = None):
 
 
 def addGames(game_library, games, library_path):
-    if not game_id:
-        game_id = getNewID(game_library)
+    game_id = getNewID(game_library)
 
     for appID, data in games.items():
-        game_library.append({'name': data[0], 'appID': appID, 'libraryPath': library_path, 'id': game_id})
+        game_library.append({'name': data[0], 'appID': appID, 'libraryPath': library_path, 'id': game_id, 'source': 'steam'})
         getSteamArtwork(appID, game_id)
 
         game_id += 1
-   
 
 
 def saveLibrary(game_library):
@@ -114,14 +116,16 @@ def saveLibrary(game_library):
 
 def updateSteamLibrary(game_library):
     steam_titles = getSteamTitles()
-    
     games = {}
+    library_steam_titles = getLibrarySteamTitles(game_library)
+    
+    print('Type q to finish')
 
     for appID, data in steam_titles.items():
         name = data[0]
         library_path = data[1]
 
-        if appID in [i['appID'] for i in game_library]:
+        if appID in [i['appID'] for i in library_steam_titles]:
             continue
         
         user_input = input(f'Add {name} to library? [Y/n]')
@@ -275,4 +279,7 @@ if __name__ == '__main__':
     # print([i['name'] for i in game_library])
     # print(game_library)
 
-    # cliMenu(game_library)
+    cliMenu(game_library)
+    
+    addNativeGame(game_library, 'test', '/home/riley/Documents/Applications/fusee-interfacee-tk-linux/App For Linux/PayloadInjector')
+    saveLibrary(game_library)
