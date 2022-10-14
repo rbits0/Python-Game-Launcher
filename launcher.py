@@ -72,10 +72,6 @@ def getSteamTitles() -> dict:
     return titles
 
 
-def getLibrarySteamTitles(game_library) -> list: # Returns only games in library which are from steam
-    return filter(lambda x: x['source'] == 'steam', game_library)
-
-
 def getNewID(game_library) -> int:
     if len(game_library) == 0:
         return 0
@@ -117,15 +113,14 @@ def saveLibrary(game_library):
 def updateSteamLibrary(game_library):
     steam_titles = getSteamTitles()
     games = {}
-    library_steam_titles = getLibrarySteamTitles(game_library)
-    
+
     print('Type q to finish')
 
     for appID, data in steam_titles.items():
         name = data[0]
         library_path = data[1]
 
-        if appID in [i['appID'] for i in library_steam_titles]:
+        if appID in [i['appID'] for i in game_library if i['source'] == 'steam']:
             continue
         
         user_input = input(f'Add {name} to library? [Y/n]')
