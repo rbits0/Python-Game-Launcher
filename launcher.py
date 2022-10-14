@@ -72,23 +72,30 @@ def getSteamTitles() -> dict:
     return titles
 
 
-def addGame(game_library, name, appID, library_path, game_id = None):
-    # First, find available id
+def getNewID(game_library) -> int:
+    if len(game_library) == 0:
+        return 0
+    else:
+        return max([x['id'] for x in game_library]) + 1
+
+
+def addSteamGame(game_library, name, appID, library_path, game_id = None):
     if not game_id:
-        if len(game_library) == 0:
-            game_id = 0
-        else:
-            game_id = max([x['id'] for x in game_library]) + 1
+        game_id = getNewID(game_library)
     
-    game_library.append({'name': name, 'appID': appID, 'libraryPath': library_path, 'id':game_id})
+    game_library.append({'name': name, 'appID': appID, 'libraryPath': library_path, 'id': game_id, 'source': 'steam'})
+
+
+def addNativeGame(game_library, name, file_path, game_id = None):
+    if not game_id:
+        game_id = getNewID(game_library)
+    
+    game_library.append({'name': name, 'filePath': file_path, 'id': game_id, 'source': 'native'})
 
 
 def addGames(game_library, games, library_path):
-    # First, find available id
-    if len(game_library) == 0:
-        game_id = 0
-    else:
-        game_id = max([x['id'] for x in game_library]) + 1
+    if not game_id:
+        game_id = getNewID(game_library)
 
     for appID, data in games.items():
         game_library.append({'name': data[0], 'appID': appID, 'libraryPath': library_path, 'id': game_id})
@@ -248,7 +255,7 @@ def cliMenu(game_library):
         # TODO: Add database of steam libraries to select from
         library_path = os.path.expanduser(input('Enter path to steam library:\n'))
         
-        addGame(game_library, name, appID, library_path)
+        addSteamGame(game_library, name, appID, library_path)
     elif userInput == 't':
         launchGame(game_library[7])
         pass
@@ -268,4 +275,4 @@ if __name__ == '__main__':
     # print([i['name'] for i in game_library])
     # print(game_library)
 
-    cliMenu(game_library)
+    # cliMenu(game_library)
