@@ -179,14 +179,10 @@ def launchGame(game):
 def printLibrary(game_library):
     index_length = len(str(len(game_library)))
     name_length = max([len(x['name']) for x in game_library])
-    appID_length = max([len(x['appID']) for x in game_library])
-    location_length = max([len(x['libraryPath']) for x in game_library])
 
     print(f'{" " * index_length}  {"Name":<{name_length}}')
-    # print('-'*(index_length + name_length + appID_length + location_length + 6))
     print('-'*(index_length + name_length + 2))
     for i, game in enumerate(game_library):
-        # print(f'{i + 1:>{index_length}}  {game["name"]:<{name_length}}  {game["appID"]:>{appID_length}}  {game["libraryPath"]:<{location_length}}')
         print(f'{i + 1:>{index_length}}  {game["name"]:<{name_length}}')
     
     user_input = input('\nPlease select a game, or type m to return to the menu: ')
@@ -204,10 +200,15 @@ def printLibrary(game_library):
     
     game = game_library[user_input - 1]
 
-    print(f'''
-{game['name']}
-appID: {game['appID']}
-Location: {game['libraryPath']}
+    print(f'\n{game["name"]}')
+
+    if game['source'] == 'steam':
+        print(f'''appID: {game['appID']}
+Location: {game['libraryPath']}''')
+    elif game['source'] == 'native':
+        print(f'Executable: {game["filePath"]}')
+    
+    print('''
 [l] Launch game
 [m] Return to menu''')
 
