@@ -172,7 +172,10 @@ def getLibrarySteamArtwork(game_library):
 def launchGame(game):
     print(f'Launching {game["name"]}')
 
-    command = f'steam steam://rungameid/{game["appID"]}'
+    if game['source'] == 'steam':
+        command = f'steam steam://rungameid/{game["appID"]}'
+    elif game['source'] == 'native':
+        command = f'"{game["filePath"]}"'
     subprocess.Popen(command, shell=True)
 
 
