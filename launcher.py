@@ -169,7 +169,7 @@ def getSteamArtwork(appID, game_id):
 
 
 def getLibrarySteamArtwork(game_library):
-    for game in game_library:
+    for game in filter(lambda x: x['source'] == 'steam', game_library):
         getSteamArtwork(game['appID'], game['id'])
 
 
