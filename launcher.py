@@ -52,6 +52,8 @@ def getSteamTitles() -> dict:
                 for i in range(7):
                     file.readline()
                 # print(file.readline().split('\t'))
+                
+                titles[library_path] = {}
 
                 continue
             
@@ -60,7 +62,8 @@ def getSteamTitles() -> dict:
                     with open(os.path.join(library_path, 'steamapps', 'appmanifest_' + appID + '.acf'), 'r') as app_manifest:
                         for manifest_line in app_manifest:
                             if manifest_line.count('"name"') > 0:
-                                titles[appID] = (manifest_line.split('"')[3], library_path)
+                                titles[library_path][appID] = manifest_line.split('"')[3]
+                                print(library_path, manifest_line.split('"')[3])
 
                 app_ids = []
                 library_path = None
@@ -96,8 +99,8 @@ def addNativeGame(game_library, name, file_path, game_id = None):
 def addGames(game_library, games, library_path):
     game_id = getNewID(game_library)
 
-    for appID, data in games.items():
-        game_library.append({'name': data[0], 'appID': appID, 'libraryPath': library_path, 'id': game_id, 'source': 'steam'})
+    for appID, name in games.items():
+        game_library.append({'name': name, 'appID': appID, 'libraryPath': library_path, 'id': game_id, 'source': 'steam'})
         getSteamArtwork(appID, game_id)
 
         game_id += 1
@@ -116,22 +119,23 @@ def updateSteamLibrary(game_library):
 
     print('Type q to finish')
 
-    for appID, data in steam_titles.items():
-        name = data[0]
-        library_path = data[1]
+    for library_path, steam_games in steam_titles.items():
+        for appID, name in steam_games.items():
+            if appID in [i['appID'] for i in game_library if i['source'] == 'steam']:
+                continue
+            
+            user_input = input(f'Add {name} to library? [Y/n]')
 
-        if appID in [i['appID'] for i in game_library if i['source'] == 'steam']:
-            continue
+            if user_input.lower() == 'q':
+                break
+
+            if user_input.lower() != 'n':
+                games[appID] = name
+    
+        addGames(game_library, games, library_path)
         
-        user_input = input(f'Add {name} to library? [Y/n]')
-
         if user_input.lower() == 'q':
             break
-
-        if user_input.lower() != 'n':
-            games[appID] = data
-    
-    addGames(game_library, games, library_path)
     saveLibrary(game_library)
 
 
