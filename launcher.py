@@ -96,7 +96,7 @@ def addNativeGame(game_library, name, file_path, game_id = None):
     game_library.append({'name': name, 'filePath': file_path, 'id': game_id, 'source': 'native'})
 
 
-def addGames(game_library, games, library_path):
+def addSteamGames(game_library, games, library_path):
     game_id = getNewID(game_library)
 
     for appID, name in games.items():
@@ -132,7 +132,7 @@ def updateSteamLibrary(game_library):
             if user_input.lower() != 'n':
                 games[appID] = name
     
-        addGames(game_library, games, library_path)
+        addSteamGames(game_library, games, library_path)
         
         if user_input.lower() == 'q':
             break
@@ -256,12 +256,15 @@ def cliMenu(game_library):
         getLibrarySteamArtwork(game_library)
     elif userInput == 'a':
         name = input('Enter name:\n')
-        # TODO: Add support for non-steam games
-        appID = input('Enter appID:\n')
-        # TODO: Add database of steam libraries to select from
-        library_path = os.path.expanduser(input('Enter path to steam library:\n'))
-        
-        addSteamGame(game_library, name, appID, library_path)
+        source = input('Enter source (Steam or Native):\n')
+        if source.lower() == 'steam':
+            appID = input('Enter appID:\n')
+            # TODO: Add database of steam libraries to select from
+            library_path = os.path.expanduser(input('Enter path to steam library:\n'))
+            addSteamGame(game_library, name, appID, library_path)
+        elif source.lower() == 'native':
+            file_path = input('Enter path to executable:\n')
+            addNativeGame(game_library, name, file_path)
     elif userInput == 't':
         launchGame(game_library[7])
         pass
