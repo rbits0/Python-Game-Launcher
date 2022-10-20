@@ -63,7 +63,6 @@ def getSteamTitles() -> dict:
                         for manifest_line in app_manifest:
                             if manifest_line.count('"name"') > 0:
                                 titles[library_path][appID] = manifest_line.split('"')[3]
-                                print(library_path, manifest_line.split('"')[3])
 
                 app_ids = []
                 library_path = None
@@ -93,7 +92,7 @@ def addNativeGame(game_library, name, file_path, game_id = None):
     if not game_id:
         game_id = getNewID(game_library)
     
-    game_library.append({'name': name, 'filePath': file_path, 'id': game_id, 'source': 'native'})
+    game_library.append({'name': name, 'filePath': os.path.expanduser(file_path), 'id': game_id, 'source': 'native'})
 
 
 def addSteamGames(game_library, games, library_path):
@@ -257,6 +256,7 @@ def cliMenu(game_library):
     elif userInput == 'a':
         name = input('Enter name:\n')
         source = input('Enter source (Steam or Native):\n')
+
         if source.lower() == 'steam':
             appID = input('Enter appID:\n')
             # TODO: Add database of steam libraries to select from
@@ -265,6 +265,8 @@ def cliMenu(game_library):
         elif source.lower() == 'native':
             file_path = input('Enter path to executable:\n')
             addNativeGame(game_library, name, file_path)
+        
+        saveLibrary(game_library)
     elif userInput == 't':
         launchGame(game_library[7])
         pass
