@@ -4,7 +4,7 @@ import shutil
 import subprocess
 
 steam_path = None
-CONFIG_FOLDER = os.path.expanduser('~/.config/PythonGameLauncher')
+CONFIG_FOLDER = os.path.join(os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), 'PythonGameLauncher')
 CONFIG_FILE = os.path.join(CONFIG_FOLDER, 'config.json')
 GAMES_FILE = os.path.join(CONFIG_FOLDER, 'games.json')
 ARTWORK_FOLDER = os.path.join(CONFIG_FOLDER, 'artwork')
