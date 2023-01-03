@@ -1,0 +1,36 @@
+"AppState"
+{
+	"appid"		"1391110"
+	"Universe"		"1"
+	"name"		"Steam Linux Runtime - Soldier"
+	"StateFlags"		"4"
+	"installdir"		"SteamLinuxRuntime_soldier"
+	"LastUpdated"		"1669949064"
+	"SizeOnDisk"		"640158868"
+	"StagingSize"		"0"
+	"buildid"		"9747109"
+	"LastOwner"		"76561198334161090"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"15966560"
+	"BytesDownloaded"		"0"
+	"BytesToStage"		"48445008"
+	"BytesStaged"		"0"
+	"TargetBuildID"		"9747109"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"1670436219"
+	"InstalledDepots"
+	{
+		"1391111"
+		{
+			"manifest"		"7329287034635793553"
+			"size"		"640158868"
+		}
+	}
+	"UserConfig"
+	{
+	}
+	"MountedConfig"
+	{
+	}
+}

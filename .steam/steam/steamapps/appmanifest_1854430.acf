@@ -1,0 +1,38 @@
+"AppState"
+{
+	"appid"		"1854430"
+	"Universe"		"1"
+	"name"		"How Fish Is Made"
+	"StateFlags"		"4"
+	"installdir"		"How Fish Is Made"
+	"LastUpdated"		"1672477460"
+	"SizeOnDisk"		"323874458"
+	"StagingSize"		"0"
+	"buildid"		"8494694"
+	"LastOwner"		"76561198334161090"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"148921184"
+	"BytesDownloaded"		"148921184"
+	"BytesToStage"		"323874458"
+	"BytesStaged"		"323874458"
+	"TargetBuildID"		"8494694"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"1854431"
+		{
+			"manifest"		"2598732528034499194"
+			"size"		"323874458"
+		}
+	}
+	"UserConfig"
+	{
+		"language"		"english"
+	}
+	"MountedConfig"
+	{
+		"language"		"english"
+	}
+}

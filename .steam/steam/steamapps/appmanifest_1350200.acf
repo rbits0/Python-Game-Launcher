@@ -1,0 +1,38 @@
+"AppState"
+{
+	"appid"		"1350200"
+	"Universe"		"1"
+	"name"		"IMMORTALITY"
+	"StateFlags"		"4"
+	"installdir"		"IMMORTALITY"
+	"LastUpdated"		"1672588989"
+	"SizeOnDisk"		"28412576917"
+	"StagingSize"		"0"
+	"buildid"		"10167019"
+	"LastOwner"		"76561198334161090"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"27764086048"
+	"BytesDownloaded"		"27764086048"
+	"BytesToStage"		"28412576917"
+	"BytesStaged"		"28412576917"
+	"TargetBuildID"		"10167019"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"1350202"
+		{
+			"manifest"		"757156893019423158"
+			"size"		"28412576917"
+		}
+	}
+	"UserConfig"
+	{
+		"language"		"english"
+	}
+	"MountedConfig"
+	{
+		"language"		"english"
+	}
+}
