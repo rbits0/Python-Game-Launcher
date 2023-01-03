@@ -1,0 +1,41 @@
+"AppState"
+{
+	"appid"		"1850960"
+	"Universe"		"1"
+	"name"		"The Jackbox Party Pack 9"
+	"StateFlags"		"4"
+	"installdir"		"The Jackbox Party Pack 9"
+	"LastUpdated"		"1671181381"
+	"SizeOnDisk"		"9246715356"
+	"StagingSize"		"0"
+	"buildid"		"10127517"
+	"LastOwner"		"76561198334161090"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"1850961"
+		{
+			"manifest"		"1433489584427823584"
+			"size"		"9200232038"
+		}
+		"1850964"
+		{
+			"manifest"		"32818154937060650"
+			"size"		"46522896"
+		}
+	}
+	"UserConfig"
+	{
+		"language"		"english"
+		"platform_override_dest"		""
+		"platform_override_source"		""
+	}
+	"MountedConfig"
+	{
+		"language"		"english"
+		"platform_override_dest"		""
+		"platform_override_source"		""
+	}
+}

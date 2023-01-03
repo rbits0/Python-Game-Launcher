@@ -1,0 +1,42 @@
+"AppState"
+{
+	"appid"		"732430"
+	"Universe"		"1"
+	"name"		"Superflight"
+	"StateFlags"		"4"
+	"installdir"		"SuperFlight"
+	"LastUpdated"		"1672292805"
+	"SizeOnDisk"		"136293177"
+	"StagingSize"		"0"
+	"buildid"		"2304714"
+	"LastOwner"		"76561198334161090"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"33948000"
+	"BytesDownloaded"		"33948000"
+	"BytesToStage"		"136293177"
+	"BytesStaged"		"136293177"
+	"TargetBuildID"		"2304714"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"732431"
+		{
+			"manifest"		"5306840167420376550"
+			"size"		"136293177"
+		}
+	}
+	"UserConfig"
+	{
+		"platform_override_dest"		"linux"
+		"platform_override_source"		"windows"
+		"language"		"english"
+	}
+	"MountedConfig"
+	{
+		"platform_override_dest"		"linux"
+		"platform_override_source"		"windows"
+		"language"		"english"
+	}
+}

@@ -1,0 +1,38 @@
+"AppState"
+{
+	"appid"		"1131190"
+	"Universe"		"1"
+	"name"		"NERTS! Online"
+	"StateFlags"		"4"
+	"installdir"		"Nerts Online"
+	"LastUpdated"		"1666607933"
+	"SizeOnDisk"		"287673086"
+	"StagingSize"		"0"
+	"buildid"		"7700080"
+	"LastOwner"		"76561198334161090"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"104059792"
+	"BytesDownloaded"		"104059792"
+	"BytesToStage"		"287673086"
+	"BytesStaged"		"287673086"
+	"TargetBuildID"		"7700080"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"1131193"
+		{
+			"manifest"		"612712384509459078"
+			"size"		"287673086"
+		}
+	}
+	"UserConfig"
+	{
+		"language"		"english"
+	}
+	"MountedConfig"
+	{
+		"language"		"english"
+	}
+}

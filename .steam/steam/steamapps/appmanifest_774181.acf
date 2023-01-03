@@ -1,0 +1,42 @@
+"AppState"
+{
+	"appid"		"774181"
+	"Universe"		"1"
+	"name"		"Rhythm Doctor"
+	"StateFlags"		"4"
+	"installdir"		"Rhythm Doctor"
+	"LastUpdated"		"1670763907"
+	"SizeOnDisk"		"851364508"
+	"StagingSize"		"0"
+	"buildid"		"10111487"
+	"LastOwner"		"76561198334161090"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"92191648"
+	"BytesDownloaded"		"92191648"
+	"BytesToStage"		"754827245"
+	"BytesStaged"		"754827245"
+	"TargetBuildID"		"10111487"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"774184"
+		{
+			"manifest"		"8786336840507694098"
+			"size"		"851364508"
+		}
+	}
+	"UserConfig"
+	{
+		"platform_override_dest"		"linux"
+		"platform_override_source"		"windows"
+		"language"		"english"
+	}
+	"MountedConfig"
+	{
+		"platform_override_dest"		"linux"
+		"platform_override_source"		"windows"
+		"language"		"english"
+	}
+}

@@ -1,0 +1,96 @@
+"AppState"
+{
+	"appid"		"379720"
+	"Universe"		"1"
+	"name"		"DOOM"
+	"StateFlags"		"4"
+	"installdir"		"DOOM"
+	"LastUpdated"		"1659194146"
+	"SizeOnDisk"		"73756206574"
+	"StagingSize"		"0"
+	"buildid"		"2642713"
+	"LastOwner"		"76561198334161090"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"379721"
+		{
+			"manifest"		"2206249600939156631"
+			"size"		"178649584"
+		}
+		"379722"
+		{
+			"manifest"		"2467070967359608463"
+			"size"		"1054"
+		}
+		"379723"
+		{
+			"manifest"		"1406287300602632194"
+			"size"		"10932132913"
+		}
+		"379724"
+		{
+			"manifest"		"3656495822077136393"
+			"size"		"1645385640"
+		}
+		"379725"
+		{
+			"manifest"		"3641581654902585102"
+			"size"		"8554214"
+		}
+		"379726"
+		{
+			"manifest"		"738549394730022244"
+			"size"		"9917750412"
+		}
+		"379727"
+		{
+			"manifest"		"8037609299761349397"
+			"size"		"9200978000"
+		}
+		"379728"
+		{
+			"manifest"		"1950426378786289921"
+			"size"		"0"
+		}
+		"379729"
+		{
+			"manifest"		"3267062194933049482"
+			"size"		"5754565165"
+		}
+		"446371"
+		{
+			"manifest"		"9171005121425145754"
+			"size"		"3207479665"
+		}
+		"446372"
+		{
+			"manifest"		"7504828670365651918"
+			"size"		"6922024725"
+		}
+		"446373"
+		{
+			"manifest"		"5740097624449687519"
+			"size"		"25988685202"
+		}
+	}
+	"SharedDepots"
+	{
+		"228986"		"228980"
+		"228990"		"228980"
+	}
+	"UserConfig"
+	{
+		"language"		"english"
+		"platform_override_dest"		"linux"
+		"platform_override_source"		"windows"
+	}
+	"MountedConfig"
+	{
+		"language"		"english"
+		"platform_override_dest"		"linux"
+		"platform_override_source"		"windows"
+	}
+}

@@ -1,0 +1,51 @@
+"AppState"
+{
+	"appid"		"1245620"
+	"Universe"		"1"
+	"name"		"ELDEN RING"
+	"StateFlags"		"4"
+	"installdir"		"ELDEN RING"
+	"LastUpdated"		"1671111500"
+	"SizeOnDisk"		"51611292738"
+	"StagingSize"		"0"
+	"buildid"		"10136104"
+	"LastOwner"		"76561198334161090"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"StagingFolder"		"2"
+	"InstalledDepots"
+	{
+		"1245621"
+		{
+			"manifest"		"1372657426714032507"
+			"size"		"51526499642"
+		}
+		"1245624"
+		{
+			"manifest"		"1790146326279181276"
+			"size"		"84826877"
+		}
+	}
+	"InstallScripts"
+	{
+		"1245621"		"Game\\EasyAntiCheat\\install_script.vdf"
+	}
+	"SharedDepots"
+	{
+		"228988"		"228980"
+		"228990"		"228980"
+	}
+	"UserConfig"
+	{
+		"platform_override_dest"		"linux"
+		"platform_override_source"		"windows"
+		"language"		"english"
+	}
+	"MountedConfig"
+	{
+		"platform_override_dest"		"linux"
+		"platform_override_source"		"windows"
+		"language"		"english"
+	}
+}

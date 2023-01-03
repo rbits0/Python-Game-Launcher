@@ -1,0 +1,38 @@
+"AppState"
+{
+	"appid"		"716490"
+	"Universe"		"1"
+	"name"		"EXAPUNKS"
+	"StateFlags"		"4"
+	"installdir"		"EXAPUNKS"
+	"LastUpdated"		"1667139417"
+	"SizeOnDisk"		"720514770"
+	"StagingSize"		"0"
+	"buildid"		"9717324"
+	"LastOwner"		"76561198334161090"
+	"UpdateResult"		"0"
+	"BytesToDownload"		"504086576"
+	"BytesDownloaded"		"504086576"
+	"BytesToStage"		"720514770"
+	"BytesStaged"		"720514770"
+	"TargetBuildID"		"9717324"
+	"AutoUpdateBehavior"		"0"
+	"AllowOtherDownloadsWhileRunning"		"0"
+	"ScheduledAutoUpdate"		"0"
+	"InstalledDepots"
+	{
+		"716493"
+		{
+			"manifest"		"623155301854862726"
+			"size"		"720514770"
+		}
+	}
+	"UserConfig"
+	{
+		"language"		"english"
+	}
+	"MountedConfig"
+	{
+		"language"		"english"
+	}
+}
