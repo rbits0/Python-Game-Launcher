@@ -130,3 +130,13 @@ dmypy.json
 
 # VSCode
 .vscode/
+
+
+#Repl.it
+.config/
+.replit
+replit.nix
+.upm/
+poetry.lock
+pyproject.toml
+.breakpoints
