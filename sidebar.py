@@ -47,6 +47,13 @@ class Sidebar(QListWidget):
         self.expand()
     
 
+    def mousePressEvent(self, e: QMouseEvent) -> None:
+        super().mousePressEvent(e)
+        focusedWidget = QApplication.focusWidget()
+        if isinstance(focusedWidget, Sidebar):
+            focusedWidget.clearFocus()
+    
+
     def expand(self) -> None:
         self.expandAnimation.setEndValue(self.maxWidth())
         self.expandAnimation.start()
