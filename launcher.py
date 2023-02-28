@@ -7,29 +7,34 @@ import sidebar
 
 
 class GameTile(QWidget):
-    def __init__(self, image: QPixmap, text: str = None, parent: QWidget = None, flags = Qt.WindowFlags()) -> None:
+    clicked = pyqtSignal()
+
+    def __init__(self, image: QPixmap, parent: QWidget = None, flags = Qt.WindowFlags()) -> None:
         super().__init__(parent, flags)
         
-        self.FONT_SIZE = 30
+        # self.FONT_SIZE = 30
+
         
         self.__bottomSpacing = 0
+        self.__imageSize = 600
         
         self.layout:QVBoxLayout = QVBoxLayout(self)
         self.layout.addStretch()
         
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         
-        imageLabel = QLabel(self)
-        imageLabel.setPixmap(image.scaledToHeight(600))
-        imageLabel.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        self.layout.addWidget(imageLabel)
+        self.image = image
+        self.imageLabel = QLabel(self)
+        self.imageLabel.setPixmap(image.scaledToHeight(600))
+        self.imageLabel.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        self.layout.addWidget(self.imageLabel)
         
-        titleLabel = QLabel(text, self)
-        font = self.font()
-        font.setPointSize(self.FONT_SIZE)
-        titleLabel.setFont(font)
-        titleLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
-        self.layout.addWidget(titleLabel)
+        # self.titleLabel = QLabel(text, self)
+        # font = self.font()
+        # font.setPointSize(self.FONT_SIZE)
+        # self.titleLabel.setFont(font)
+        # self.titleLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
+        # self.layout.addWidget(self.titleLabel)
         
         self.raiseAnimation = QPropertyAnimation(self, b'bottomSpacing')
         self.raiseAnimation.setEndValue(100)
@@ -40,18 +45,32 @@ class GameTile(QWidget):
         self.dropAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.dropAnimation.setDuration(100)
         
+        self.growAnimation = QPropertyAnimation(self, b'imageSize')
+        self.growAnimation.setEndValue(700)
+        self.growAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self.growAnimation.setDuration(100)
+        self.shrinkAnimation = QPropertyAnimation(self, b'imageSize')
+        self.shrinkAnimation.setEndValue(600)
+        self.shrinkAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self.shrinkAnimation.setDuration(100)
+        
         self.spacer: QSpacerItem = QSpacerItem(0, 0)
         self.layout.addSpacerItem(self.spacer)
     
 
-    def enterEvent(self, e: QEvent) -> None:
-        self.raiseAnimation.start()
-        return super().enterEvent(e)
+    # def enterEvent(self, e: QEvent) -> None:
+    #     # self.raiseAnimation.start()
+    #     self.growAnimation.start()
+    #     return super().enterEvent(e)
 
-    def leaveEvent(self, e: QEvent) -> None:
-        self.dropAnimation.start()
-        return super().leaveEvent(e)
+    # def leaveEvent(self, e: QEvent) -> None:
+    #     # self.dropAnimation.start()
+    #     self.shrinkAnimation.start()
+    #     return super().leaveEvent(e)
     
+    def mousePressEvent(self, e: QMouseEvent) -> None:
+        self.clicked.emit()
+        return super().mousePressEvent(e)
 
     @pyqtProperty(int)
     def bottomSpacing(self) -> int:
@@ -62,6 +81,15 @@ class GameTile(QWidget):
         self.spacer.changeSize(1, bottomSpacing)
         self.layout.invalidate()
         self.__bottomSpacing = bottomSpacing
+    
+    @pyqtProperty(int)
+    def imageSize(self) -> int:
+        return self.__imageSize
+    
+    @imageSize.setter
+    def imageSize(self, imageSize: int) -> None:
+        self.imageLabel.setPixmap(self.image.scaledToHeight(imageSize))
+        self.__imageSize = imageSize
         
 
 class MainWindow(QMainWindow):
@@ -82,9 +110,12 @@ class MainWindow(QMainWindow):
         self.tiles = []
         image = QPixmap('test_image.jpg')
         for i in range(10):
-            tile = GameTile(image, 'test', self)
+            tile = GameTile(image, self)
+            tile.clicked.connect(lambda i=i: self.tileClicked(i))
             self.tiles.append(tile)
             self.scrollLayout.addWidget(tile)
+        self.selectedTile = 0
+
         self.scrollWidget = QWidget()
         self.scrollWidget.setLayout(self.scrollLayout)
         self.scrollArea = QScrollArea()
@@ -104,6 +135,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(centralWidget)
         
         self.resize(1000, 700)
+        self.showMaximized()
     
     
     def testAnimation(self, e):
@@ -113,6 +145,15 @@ class MainWindow(QMainWindow):
             self.tiles[0].raiseAnimation.start()
         else:
             self.tiles[0].dropAnimation.start()
+    
+
+    def tileClicked(self, index):
+        if index == self.selectedTile:
+            return
+        
+        self.tiles[index].growAnimation.start()
+        self.tiles[self.selectedTile].shrinkAnimation.start()
+        self.selectedTile = index
             
             
 
