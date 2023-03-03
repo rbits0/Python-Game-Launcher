@@ -13,11 +13,11 @@ class GameTile(QWidget):
         super().__init__(parent, flags)
         
         # self.FONT_SIZE = 30
-        self.EXPANDED_IMAGE_SIZE = 540
+        self.EXPANDED_IMAGE_SIZE = 360
 
         
         self.__bottomSpacing = 0
-        self.__imageSize = 450
+        self.__imageSize = 300
         
         self.layout:QVBoxLayout = QVBoxLayout(self)
         self.layout.addStretch()
@@ -35,7 +35,7 @@ class GameTile(QWidget):
         painter.drawRoundedRect(image.rect(), radius, radius)
         
         self.imageLabel = QLabel(self)
-        self.imageLabel.setPixmap(self.image.scaledToHeight(self.imageSize))
+        self.imageLabel.setPixmap(self.image.scaledToWidth(self.imageSize))
         self.imageLabel.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         self.layout.addWidget(self.imageLabel)
         
@@ -99,7 +99,7 @@ class GameTile(QWidget):
     
     @imageSize.setter
     def imageSize(self, imageSize: int) -> None:
-        self.imageLabel.setPixmap(self.image.scaledToHeight(imageSize))
+        self.imageLabel.setPixmap(self.image.scaledToWidth(imageSize))
         self.__imageSize = imageSize
 
 
