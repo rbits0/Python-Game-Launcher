@@ -13,10 +13,11 @@ class GameTile(QWidget):
         super().__init__(parent, flags)
         
         # self.FONT_SIZE = 30
+        self.EXPANDED_IMAGE_SIZE = 540
 
         
         self.__bottomSpacing = 0
-        self.__imageSize = 600
+        self.__imageSize = 450
         
         self.layout:QVBoxLayout = QVBoxLayout(self)
         self.layout.addStretch()
@@ -25,7 +26,7 @@ class GameTile(QWidget):
         
         self.image = image
         self.imageLabel = QLabel(self)
-        self.imageLabel.setPixmap(image.scaledToHeight(600))
+        self.imageLabel.setPixmap(image.scaledToHeight(self.imageSize))
         self.imageLabel.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         self.layout.addWidget(self.imageLabel)
         
@@ -46,17 +47,18 @@ class GameTile(QWidget):
         self.dropAnimation.setDuration(100)
         
         self.growAnimation = QPropertyAnimation(self, b'imageSize')
-        self.growAnimation.setEndValue(700)
+        self.growAnimation.setEndValue(self.EXPANDED_IMAGE_SIZE)
         self.growAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.growAnimation.setDuration(100)
         self.shrinkAnimation = QPropertyAnimation(self, b'imageSize')
-        self.shrinkAnimation.setEndValue(600)
+        self.shrinkAnimation.setEndValue(self.imageSize)
         self.shrinkAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.shrinkAnimation.setDuration(100)
         
         self.spacer: QSpacerItem = QSpacerItem(0, 0)
         self.layout.addSpacerItem(self.spacer)
-    
+        
+        self.setLayout(self.layout)
 
     # def enterEvent(self, e: QEvent) -> None:
     #     # self.raiseAnimation.start()
@@ -90,6 +92,45 @@ class GameTile(QWidget):
     def imageSize(self, imageSize: int) -> None:
         self.imageLabel.setPixmap(self.image.scaledToHeight(imageSize))
         self.__imageSize = imageSize
+
+
+class AnimatedScrollArea(QScrollArea):
+    def __init__(self, parent: QWidget = ...) -> None:
+        super().__init__(parent)
+
+        self.scrollAnimation = QPropertyAnimation(self.horizontalScrollBar(), b'value')
+        self.scrollAnimation.setDuration(100)
+        self.scrollAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+
+
+    def ensureWidgetVisible(self, childWidget: QWidget, xMargin: int = ..., yMargin: int = ...) -> None:
+        contentsRect: QRect = childWidget.contentsRect()
+        pos = childWidget.pos()
+        scrollBarValue: int  = self.horizontalScrollBar().value()
+        viewWidth = self.width()
+        isLeft = pos.x() < scrollBarValue + xMargin
+        
+        if isLeft:
+            xPos = pos.x() - xMargin
+            doScroll = True if xPos < self.horizontalScrollBar().value() else False
+        else:
+            xPosInLayout = pos.x() + contentsRect.width() + xMargin
+            xPos = xPosInLayout - viewWidth
+            doScroll = True if xPos > self.horizontalScrollBar().value() else False
+        print(isLeft, doScroll)
+        if doScroll:
+            self.scrollAnimation.setEndValue(xPos)
+            self.scrollAnimation.start()
+            # print(isLeft, scrollBarValue, xPos, pos)
+            # self.horizontalScrollBar().setValue(xPos)
+
+    @pyqtProperty(int)
+    def xPos(self) -> int:
+        return self._xPos
+
+    @xPos.setter
+    def xPos(self, xPos: int) -> None:
+        self._xPos = xPos
         
 
 class MainWindow(QMainWindow):
@@ -101,24 +142,25 @@ class MainWindow(QMainWindow):
         self.sidebar = sidebar.Sidebar(self, [testButton1, testButton2])
         self.sidebar.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Expanding)
         
-        self.sidebar.itemClicked.connect(self.testAnimation)
+        # self.sidebar.itemClicked.connect(self.testAnimation)
         
         # self.tempButton = QPushButton('a')
         # self.tempButton.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         self.scrollLayout = QHBoxLayout()
-        self.tiles = []
-        image = QPixmap('test_image.jpg')
+        self.tiles: list[GameTile] = []
+        image = QPixmap('test_image2.png')
         for i in range(10):
             tile = GameTile(image, self)
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
             self.tiles.append(tile)
             self.scrollLayout.addWidget(tile)
+        self.tiles[0].growAnimation.start()
         self.selectedTile = 0
 
         self.scrollWidget = QWidget()
         self.scrollWidget.setLayout(self.scrollLayout)
-        self.scrollArea = QScrollArea()
+        self.scrollArea = AnimatedScrollArea(self)
         self.scrollArea.setWidget(self.scrollWidget)
         self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.scrollArea.setWidgetResizable(True)
@@ -136,6 +178,7 @@ class MainWindow(QMainWindow):
         
         self.resize(1000, 700)
         self.showMaximized()
+        # self.showFullScreen()
     
     
     def testAnimation(self, e):
@@ -151,10 +194,12 @@ class MainWindow(QMainWindow):
         if index == self.selectedTile:
             return
         
-        self.tiles[index].growAnimation.start()
-        self.tiles[self.selectedTile].shrinkAnimation.start()
+        animationGroup = QParallelAnimationGroup(self)
+        animationGroup.addAnimation(self.tiles[index].growAnimation)
+        animationGroup.addAnimation(self.tiles[self.selectedTile].shrinkAnimation)
+        animationGroup.start()
+        self.scrollArea.ensureWidgetVisible(self.tiles[index], 200, 200)
         self.selectedTile = index
-            
             
 
 
