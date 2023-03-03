@@ -47,11 +47,11 @@ class Sidebar(QListWidget):
         self.expand()
     
 
-    def mousePressEvent(self, e: QMouseEvent) -> None:
-        super().mousePressEvent(e)
-        focusedWidget = QApplication.focusWidget()
-        if isinstance(focusedWidget, Sidebar):
-            focusedWidget.clearFocus()
+    # def mousePressEvent(self, e: QMouseEvent) -> None:
+    #     super().mousePressEvent(e)
+    #     focusedWidget = QApplication.focusWidget()
+    #     if isinstance(focusedWidget, Sidebar):
+    #         focusedWidget.clearFocus()
     
 
     def expand(self) -> None:
