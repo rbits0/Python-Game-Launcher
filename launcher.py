@@ -24,9 +24,18 @@ class GameTile(QWidget):
         
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         
-        self.image = image
+        # Image (with rounded corners)
+        radius = 30
+        self.image = QPixmap(image.size())
+        self.image.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(self.image)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setBrush(QBrush(image))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawRoundedRect(image.rect(), radius, radius)
+        
         self.imageLabel = QLabel(self)
-        self.imageLabel.setPixmap(image.scaledToHeight(self.imageSize))
+        self.imageLabel.setPixmap(self.image.scaledToHeight(self.imageSize))
         self.imageLabel.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         self.layout.addWidget(self.imageLabel)
         
