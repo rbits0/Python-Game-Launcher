@@ -169,16 +169,31 @@ class MainWindow(QMainWindow):
 
         self.scrollWidget = QWidget()
         self.scrollWidget.setLayout(self.scrollLayout)
+        self.scrollLayout.setContentsMargins(20, 20, 20, 20)
         self.scrollArea = AnimatedScrollArea(self)
         self.scrollArea.setWidget(self.scrollWidget)
         self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setFrameShape(QFrame.Shape.NoFrame)
         
+        
+        
+        settingsButtonSize = 50
+        self.settingsButton = QPushButton(QIcon.fromTheme('settings'), '')
+        self.settingsButton.setFixedSize(settingsButtonSize, settingsButtonSize)
+        self.settingsButton.setIconSize(QSize(int(settingsButtonSize*0.8), int(settingsButtonSize*0.8)))
+
+        topBar = QHBoxLayout()
+        topBar.addStretch()
+        topBar.addWidget(self.settingsButton)
+        
+        mainContentsLayout = QVBoxLayout()
+        mainContentsLayout.addLayout(topBar)
+        mainContentsLayout.addWidget(self.scrollArea)
+
         layout = QHBoxLayout()
         layout.addWidget(self.sidebar)
-        # layout.addWidget(self.tempButton)
-        layout.addWidget(self.scrollArea)
-        # layout.addWidget(self.scrollWidget)
+        layout.addLayout(mainContentsLayout)
         layout.setContentsMargins(0, 0, 0, 0)
         
         centralWidget = QWidget(self)
