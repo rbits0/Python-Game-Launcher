@@ -274,11 +274,18 @@ class MainWindow(QMainWindow):
     
     
     def playButtonClicked(self) -> None:
-        game: dict = self.tiles[self.selectedTile][1]
-        self.launchGame(game)
-        self.playButton.setText('Stop')
+        if self.playButton.text() == 'Play':
+            game: dict = self.tiles[self.selectedTile][1]
+            self.launchGame(game)
+            self.playButton.setText('Stop')
+        else:
+            self.runningProcess[0].terminate()
 
     def launchGame(self, game: dict) -> None:
+        if self.runningProcess is not None:
+            QMessageBox.warning(self, 'Game already running', 'Please close the running game before you launch another game')
+            return
+
         process = QProcess()
 
         if game['source'] == 'steam':
