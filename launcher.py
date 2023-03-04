@@ -131,6 +131,8 @@ class AnimatedScrollArea(QScrollArea):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        
+        self.MAIN_CONTENT_PADDING = 20
 
         testButton1 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Alphabetical order')}
         testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
@@ -143,6 +145,7 @@ class MainWindow(QMainWindow):
         # self.tempButton.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         self.scrollLayout = QHBoxLayout()
+        self.scrollLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, self.MAIN_CONTENT_PADDING, self.MAIN_CONTENT_PADDING)
         scrollMargins = 20
         self.tiles: list[GameTile] = []
         image = QPixmap('test_image2.png')
@@ -208,12 +211,12 @@ class MainWindow(QMainWindow):
         gameInfoLayout.addWidget(gameTitle)
         gameInfoLayout.addWidget(self.gameDescription)
         gameInfoLayout.addLayout(playButtonLayout)
+        gameInfoLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, 0, 0)
         
         mainContentsLayout = QVBoxLayout()
         mainContentsLayout.addLayout(topBar)
         mainContentsLayout.addLayout(gameInfoLayout)
         mainContentsLayout.addWidget(self.scrollArea)
-        mainContentsLayout.setContentsMargins(20, 0, 0, 20)
 
         layout = QHBoxLayout()
         layout.addWidget(self.sidebar)
