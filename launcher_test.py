@@ -138,7 +138,7 @@ def updateSteamLibrary(game_library):
     saveLibrary(game_library)
 
 
-def getLibrary() -> dict:
+def getLibrary() -> list:
 
     if os.path.exists(GAMES_FILE) and os.path.getsize(GAMES_FILE) > 0:
         with open(GAMES_FILE, 'r') as file:

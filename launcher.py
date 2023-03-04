@@ -1,9 +1,14 @@
-import sys
+import sys, os, sidebar, json
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import *
-import sidebar
+
+
+CONFIG_FOLDER = os.path.join(os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), 'PythonGameLauncher')
+CONFIG_FILE = os.path.join(CONFIG_FOLDER, 'config.json')
+GAMES_FILE = os.path.join(CONFIG_FOLDER, 'games.json')
+ARTWORK_FOLDER = os.path.join(CONFIG_FOLDER, 'artwork')
 
 
 class GameTile(QWidget):
@@ -112,7 +117,6 @@ class AnimatedScrollArea(QScrollArea):
             xPosInLayout = pos.x() + contentsRect.width() + xMargin
             xPos = xPosInLayout - viewWidth
             doScroll = True if xPos > self.horizontalScrollBar().value() else False
-        print(isLeft, doScroll)
         if doScroll:
             self.scrollAnimation.setEndValue(xPos)
             self.scrollAnimation.start()
@@ -129,7 +133,7 @@ class AnimatedScrollArea(QScrollArea):
         
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, library: list):
         super().__init__()
         
         self.MAIN_CONTENT_PADDING = 20
@@ -148,10 +152,15 @@ class MainWindow(QMainWindow):
         self.scrollLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, self.MAIN_CONTENT_PADDING, self.MAIN_CONTENT_PADDING)
         scrollMargins = 20
         self.tiles: list[GameTile] = []
-        image = QPixmap('test_image2.png')
+        defaultImage = QPixmap(600, 900)
+        defaultImage.fill(Qt.GlobalColor.white)
         imageHeight = 450
         expandedImageHeight = 540
-        for i in range(10):
+        for i, game in enumerate(library):
+            image = getLibraryImage(game['id'])
+            if image is None:
+                image = defaultImage
+
             tile = GameTile(image, self, imageHeight, expandedImageHeight)
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
             self.tiles.append(tile)
@@ -202,7 +211,6 @@ class MainWindow(QMainWindow):
         font.setBold(True)
         self.playButton.setFont(font)
         self.playButton.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
-        self.playButton.clicked.connect(lambda: print(self.height()))
         self.playButton.setMinimumWidth(150)
         self.playButton.setMaximumHeight(75)
         playButtonLayout = QHBoxLayout()
@@ -259,13 +267,56 @@ class MainWindow(QMainWindow):
     # def resizeEvent(self, e: QResizeEvent) -> None:
     #     self.gameDescription.setMaximumWidth(self.scrollArea.width())
     #     return super().resizeEvent(e)
+
+
+def readConfig() -> dict:
+    if not os.path.exists(ARTWORK_FOLDER):
+        os.mkdir(ARTWORK_FOLDER)
+
+    if not os.path.exists(CONFIG_FILE):
+        return False
+    
+    with open(CONFIG_FILE, 'r') as file:
+        config = json.load(file)
+    
+    return config
+
+def getLibrary() -> list:
+    if os.path.exists(GAMES_FILE) and os.path.getsize(GAMES_FILE) > 0:
+        with open(GAMES_FILE, 'r') as file:
+            game_library = json.load(file)
+        
+        return game_library
+    else:
+        with open(GAMES_FILE, 'w') as file:
+            json.dump([], file, indent='\t')
+        return []
+
+def getLibraryImage(id: int) -> QPixmap:
+    if os.path.exists(os.path.join(ARTWORK_FOLDER, f'{id}_library_image.jpg')):
+        path = os.path.join(ARTWORK_FOLDER, f'{id}_library_image.jpg')
+    elif os.path.exists(os.path.join(ARTWORK_FOLDER, f'{id}_library_image.png')):
+        path = os.path.join(ARTWORK_FOLDER, f'{id}_library_image.png')
+    else:
+        # print(os.path.join(ARTWORK_FOLDER, f'{id}_library_image.jpg'))
+        return None
+
+    return QPixmap(path)
+
             
 
+def main(argv) -> None:
+    config = readConfig()
+    library = getLibrary()
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
 
-    window = MainWindow()
+    app = QApplication(argv)
+
+    window = MainWindow(library)
     window.show()
 
     app.exec()
+
+
+if __name__ == '__main__':
+    main(sys.argv)
