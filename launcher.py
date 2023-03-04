@@ -9,15 +9,14 @@ import sidebar
 class GameTile(QWidget):
     clicked = pyqtSignal()
 
-    def __init__(self, image: QPixmap, parent: QWidget = None, flags = Qt.WindowFlags()) -> None:
+    def __init__(self, image: QPixmap, parent: QWidget = None, imageSize = 450, expandedImageSize = 540, flags = Qt.WindowFlags()) -> None:
         super().__init__(parent, flags)
         
         # self.FONT_SIZE = 30
-        self.EXPANDED_IMAGE_SIZE = 360
+        self.EXPANDED_IMAGE_SIZE = 540
 
         
-        self.__bottomSpacing = 0
-        self.__imageSize = 300
+        self.__imageSize = 450
         
         self.layout:QVBoxLayout = QVBoxLayout(self)
         self.layout.addStretch()
@@ -35,7 +34,7 @@ class GameTile(QWidget):
         painter.drawRoundedRect(image.rect(), radius, radius)
         
         self.imageLabel = QLabel(self)
-        self.imageLabel.setPixmap(self.image.scaledToWidth(self.imageSize))
+        self.imageLabel.setPixmap(self.image.scaledToHeight(self.imageSize))
         self.imageLabel.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         self.layout.addWidget(self.imageLabel)
         
@@ -46,15 +45,6 @@ class GameTile(QWidget):
         # self.titleLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
         # self.layout.addWidget(self.titleLabel)
         
-        self.raiseAnimation = QPropertyAnimation(self, b'bottomSpacing')
-        self.raiseAnimation.setEndValue(100)
-        self.raiseAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
-        self.raiseAnimation.setDuration(100)
-        self.dropAnimation = QPropertyAnimation(self, b'bottomSpacing')
-        self.dropAnimation.setEndValue(0)
-        self.dropAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
-        self.dropAnimation.setDuration(100)
-        
         self.growAnimation = QPropertyAnimation(self, b'imageSize')
         self.growAnimation.setEndValue(self.EXPANDED_IMAGE_SIZE)
         self.growAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
@@ -64,21 +54,8 @@ class GameTile(QWidget):
         self.shrinkAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.shrinkAnimation.setDuration(100)
         
-        self.spacer: QSpacerItem = QSpacerItem(0, 0)
-        self.layout.addSpacerItem(self.spacer)
-        
         self.setLayout(self.layout)
 
-    # def enterEvent(self, e: QEvent) -> None:
-    #     # self.raiseAnimation.start()
-    #     self.growAnimation.start()
-    #     return super().enterEvent(e)
-
-    # def leaveEvent(self, e: QEvent) -> None:
-    #     # self.dropAnimation.start()
-    #     self.shrinkAnimation.start()
-    #     return super().leaveEvent(e)
-    
     def mousePressEvent(self, e: QMouseEvent) -> None:
         self.clicked.emit()
         return super().mousePressEvent(e)
@@ -99,7 +76,7 @@ class GameTile(QWidget):
     
     @imageSize.setter
     def imageSize(self, imageSize: int) -> None:
-        self.imageLabel.setPixmap(self.image.scaledToWidth(imageSize))
+        self.imageLabel.setPixmap(self.image.scaledToHeight(imageSize))
         self.__imageSize = imageSize
 
 
@@ -157,10 +134,14 @@ class MainWindow(QMainWindow):
         # self.tempButton.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         self.scrollLayout = QHBoxLayout()
+        scrollMargins = 20
+        self.scrollLayout.setContentsMargins(20, 20, 20, 20)
         self.tiles: list[GameTile] = []
         image = QPixmap('test_image2.png')
+        imageHeight = 450
+        expandedImageHeight = 540
         for i in range(10):
-            tile = GameTile(image, self)
+            tile = GameTile(image, self, imageHeight, expandedImageHeight)
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
             self.tiles.append(tile)
             self.scrollLayout.addWidget(tile)
@@ -169,12 +150,12 @@ class MainWindow(QMainWindow):
 
         self.scrollWidget = QWidget()
         self.scrollWidget.setLayout(self.scrollLayout)
-        self.scrollLayout.setContentsMargins(20, 20, 20, 20)
         self.scrollArea = AnimatedScrollArea(self)
         self.scrollArea.setWidget(self.scrollWidget)
         self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setFrameShape(QFrame.Shape.NoFrame)
+        self.scrollArea.setFixedHeight(expandedImageHeight + 2 * scrollMargins + 10)
         
         
         
@@ -187,8 +168,42 @@ class MainWindow(QMainWindow):
         topBar.addStretch()
         topBar.addWidget(self.settingsButton)
         
+        gameTitle = QLabel("Title")
+        font = self.font()
+        font.setPointSize(36)
+        font.setBold(True)
+        gameTitle.setFont(font)
+        
+        self.gameDescription = QLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
+        font = self.font()
+        font.setPointSize(20)
+        self.gameDescription.setFont(font)
+        # self.gameDescription.setMinimumWidth(0)
+        # self.gameDescription.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.gameDescription.setWordWrap(True)
+        self.gameDescription.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Expanding)
+        self.gameDescription.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.gameDescription.setMaximumHeight(125)
+        
+        self.playButton = QPushButton('Play')
+        font = self.font()
+        font.setPointSize(24)
+        font.setBold(True)
+        self.playButton.setFont(font)
+        self.playButton.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
+        self.playButton.clicked.connect(lambda: print(self.height()))
+        playButtonLayout = QHBoxLayout()
+        playButtonLayout.addWidget(self.playButton)
+        playButtonLayout.addStretch()
+        
+        gameInfoLayout = QVBoxLayout()
+        gameInfoLayout.addWidget(gameTitle)
+        gameInfoLayout.addWidget(self.gameDescription)
+        gameInfoLayout.addLayout(playButtonLayout)
+        
         mainContentsLayout = QVBoxLayout()
         mainContentsLayout.addLayout(topBar)
+        mainContentsLayout.addLayout(gameInfoLayout)
         mainContentsLayout.addWidget(self.scrollArea)
 
         layout = QHBoxLayout()
@@ -200,7 +215,8 @@ class MainWindow(QMainWindow):
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
         
-        self.resize(1000, 700)
+        self.setMinimumHeight(870)
+        self.resize(1200, 870)
         self.showMaximized()
         # self.showFullScreen()
     
@@ -224,6 +240,11 @@ class MainWindow(QMainWindow):
         animationGroup.start()
         self.scrollArea.ensureWidgetVisible(self.tiles[index], 200, 200)
         self.selectedTile = index
+    
+
+    # def resizeEvent(self, e: QResizeEvent) -> None:
+    #     self.gameDescription.setMaximumWidth(self.scrollArea.width())
+    #     return super().resizeEvent(e)
             
 
 
