@@ -138,6 +138,8 @@ class MainWindow(QMainWindow):
         
         self.MAIN_CONTENT_PADDING = 20
 
+        self.runningProcesses = []
+
         testButton1 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Alphabetical order')}
         testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
         self.sidebar = sidebar.Sidebar(self, [testButton1, testButton2])
@@ -212,6 +214,7 @@ class MainWindow(QMainWindow):
         self.playButton.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
         self.playButton.setMinimumWidth(150)
         self.playButton.setMaximumHeight(75)
+        self.playButton.clicked.connect(self.playButtonClicked)
         playButtonLayout = QHBoxLayout()
         playButtonLayout.addWidget(self.playButton)
         playButtonLayout.addStretch()
@@ -262,6 +265,25 @@ class MainWindow(QMainWindow):
             self.gameDescription.setText('No description')
         else:
             self.gameDescription.setText(game['description'])
+    
+    
+    def playButtonClicked(self) -> None:
+        game: dict= self.tiles[self.selectedTile][1]
+        self.launchGame(game)
+
+    def launchGame(self, game: dict) -> None:
+        process = QProcess()
+
+        if game['source'] == 'steam':
+            process.start('steam', [f'steam://rungameid/{game["appID"]}'])
+        elif game['source'] == 'native':
+            if 'args' in game.keys():
+                args = game['args']
+            else:
+                args = []
+            process.start(game['filePath'], args)
+
+        self.runningProcesses.append(process)
     
 
     # def resizeEvent(self, e: QResizeEvent) -> None:
