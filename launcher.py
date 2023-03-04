@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
         self.scrollLayout = QHBoxLayout()
         self.scrollLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, self.MAIN_CONTENT_PADDING, self.MAIN_CONTENT_PADDING)
         scrollMargins = 20
-        self.tiles: list[GameTile] = []
+        self.tiles: list[tuple] = []
         defaultImage = QPixmap(600, 900)
         defaultImage.fill(Qt.GlobalColor.white)
         imageHeight = 450
@@ -163,10 +163,9 @@ class MainWindow(QMainWindow):
 
             tile = GameTile(image, self, imageHeight, expandedImageHeight)
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
-            self.tiles.append(tile)
+            self.tiles.append((tile, game))
             self.scrollLayout.addWidget(tile)
-        self.tiles[0].growAnimation.start()
-        self.selectedTile = 0
+        self.selectedTile = None
 
         self.scrollWidget = QWidget()
         self.scrollWidget.setLayout(self.scrollLayout)
@@ -188,11 +187,11 @@ class MainWindow(QMainWindow):
         topBar.addStretch()
         topBar.addWidget(self.settingsButton)
         
-        gameTitle = QLabel("Title")
+        self.gameTitle = QLabel("Title")
         font = self.font()
         font.setPointSize(36)
         font.setBold(True)
-        gameTitle.setFont(font)
+        self.gameTitle.setFont(font)
         
         self.gameDescription = QLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
         font = self.font()
@@ -218,7 +217,7 @@ class MainWindow(QMainWindow):
         playButtonLayout.addStretch()
         
         gameInfoLayout = QVBoxLayout()
-        gameInfoLayout.addWidget(gameTitle)
+        gameInfoLayout.addWidget(self.gameTitle)
         gameInfoLayout.addWidget(self.gameDescription)
         gameInfoLayout.addLayout(playButtonLayout)
         gameInfoLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, 0, 0)
@@ -236,6 +235,8 @@ class MainWindow(QMainWindow):
         centralWidget = QWidget(self)
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
+
+        self.tileClicked(0)
         
         self.setMinimumHeight(875)
         self.resize(1200, 875)
@@ -243,25 +244,24 @@ class MainWindow(QMainWindow):
         # self.showFullScreen()
     
     
-    def testAnimation(self, e):
-        row = self.sidebar.currentRow()
-        print(row)
-        if row == 0:
-            self.tiles[0].raiseAnimation.start()
-        else:
-            self.tiles[0].dropAnimation.start()
-    
-
     def tileClicked(self, index):
         if index == self.selectedTile:
             return
         
         animationGroup = QParallelAnimationGroup(self)
-        animationGroup.addAnimation(self.tiles[index].growAnimation)
-        animationGroup.addAnimation(self.tiles[self.selectedTile].shrinkAnimation)
+        animationGroup.addAnimation(self.tiles[index][0].growAnimation)
+        if self.selectedTile is not None:
+            animationGroup.addAnimation(self.tiles[self.selectedTile][0].shrinkAnimation)
         animationGroup.start()
-        self.scrollArea.ensureWidgetVisible(self.tiles[index], 200, 200)
+        self.scrollArea.ensureWidgetVisible(self.tiles[index][0], 200, 200)
         self.selectedTile = index
+
+        game = self.tiles[index][1]
+        self.gameTitle.setText(game['name'])
+        if 'description' not in game.keys() or game['description'] is None:
+            self.gameDescription.setText('No description')
+        else:
+            self.gameDescription.setText(game['description'])
     
 
     # def resizeEvent(self, e: QResizeEvent) -> None:
