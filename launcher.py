@@ -13,7 +13,8 @@ class GameTile(QWidget):
         super().__init__(parent, flags)
         
         # self.FONT_SIZE = 30
-        self.EXPANDED_IMAGE_SIZE = 540
+        self.baseImageSize = imageSize
+        self.expandedImageSize = expandedImageSize
 
         
         self.__imageSize = 450
@@ -23,6 +24,9 @@ class GameTile(QWidget):
         
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         
+        # Scale the image to 600x900 first so the rounded corners are consistent
+        image = image.scaled(600, 900, transformMode=Qt.TransformationMode.SmoothTransformation)
+
         # Image (with rounded corners)
         radius = 30
         self.image = QPixmap(image.size())
@@ -34,7 +38,7 @@ class GameTile(QWidget):
         painter.drawRoundedRect(image.rect(), radius, radius)
         
         self.imageLabel = QLabel(self)
-        self.imageLabel.setPixmap(self.image.scaledToHeight(self.imageSize))
+        self.imageLabel.setPixmap(self.image.scaledToHeight(self.imageSize, Qt.TransformationMode.SmoothTransformation))
         self.imageLabel.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         self.layout.addWidget(self.imageLabel)
         
@@ -46,11 +50,11 @@ class GameTile(QWidget):
         # self.layout.addWidget(self.titleLabel)
         
         self.growAnimation = QPropertyAnimation(self, b'imageSize')
-        self.growAnimation.setEndValue(self.EXPANDED_IMAGE_SIZE)
+        self.growAnimation.setEndValue(self.expandedImageSize)
         self.growAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.growAnimation.setDuration(100)
         self.shrinkAnimation = QPropertyAnimation(self, b'imageSize')
-        self.shrinkAnimation.setEndValue(self.imageSize)
+        self.shrinkAnimation.setEndValue(self.baseImageSize)
         self.shrinkAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.shrinkAnimation.setDuration(100)
         
@@ -76,7 +80,12 @@ class GameTile(QWidget):
     
     @imageSize.setter
     def imageSize(self, imageSize: int) -> None:
-        self.imageLabel.setPixmap(self.image.scaledToHeight(imageSize))
+        if imageSize == self.baseImageSize or self.expandedImageSize:
+            # Smooth
+            self.imageLabel.setPixmap(self.image.scaledToHeight(imageSize, Qt.TransformationMode.SmoothTransformation))
+        else:
+            # Fast
+            self.imageLabel.setPixmap(self.image.scaledToHeight(imageSize, Qt.TransformationMode.FastTransformation))
         self.__imageSize = imageSize
 
 
