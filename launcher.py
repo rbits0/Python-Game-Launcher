@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
         
         self.MAIN_CONTENT_PADDING = 20
 
-        self.runningProcesses = []
+        self.runningProcess = None
 
         testButton1 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Alphabetical order')}
         testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
@@ -265,11 +265,18 @@ class MainWindow(QMainWindow):
             self.gameDescription.setText('No description')
         else:
             self.gameDescription.setText(game['description'])
+        
+        if self.runningProcess is not None:
+            if game['id'] == self.runningProcess[1]:
+                self.playButton.setText('Stop')
+            else:
+                self.playButton.setText('Play')
     
     
     def playButtonClicked(self) -> None:
-        game: dict= self.tiles[self.selectedTile][1]
+        game: dict = self.tiles[self.selectedTile][1]
         self.launchGame(game)
+        self.playButton.setText('Stop')
 
     def launchGame(self, game: dict) -> None:
         process = QProcess()
@@ -283,7 +290,13 @@ class MainWindow(QMainWindow):
                 args = []
             process.start(game['filePath'], args)
 
-        self.runningProcesses.append(process)
+        self.runningProcess: tuple = (process, game['id'])
+        
+        process.finished.connect(self.processFinished)
+    
+    def processFinished(self) -> None:
+        self.playButton.setText('Play')
+        self.runningProcess = None
     
 
     # def resizeEvent(self, e: QResizeEvent) -> None:
