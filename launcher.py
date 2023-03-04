@@ -203,6 +203,8 @@ class MainWindow(QMainWindow):
         self.playButton.setFont(font)
         self.playButton.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
         self.playButton.clicked.connect(lambda: print(self.height()))
+        self.playButton.setMinimumWidth(150)
+        self.playButton.setMaximumHeight(75)
         playButtonLayout = QHBoxLayout()
         playButtonLayout.addWidget(self.playButton)
         playButtonLayout.addStretch()
