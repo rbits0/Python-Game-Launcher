@@ -144,7 +144,6 @@ class MainWindow(QMainWindow):
         
         self.scrollLayout = QHBoxLayout()
         scrollMargins = 20
-        self.scrollLayout.setContentsMargins(20, 20, 20, 20)
         self.tiles: list[GameTile] = []
         image = QPixmap('test_image2.png')
         imageHeight = 450
@@ -214,6 +213,7 @@ class MainWindow(QMainWindow):
         mainContentsLayout.addLayout(topBar)
         mainContentsLayout.addLayout(gameInfoLayout)
         mainContentsLayout.addWidget(self.scrollArea)
+        mainContentsLayout.setContentsMargins(20, 0, 0, 20)
 
         layout = QHBoxLayout()
         layout.addWidget(self.sidebar)
