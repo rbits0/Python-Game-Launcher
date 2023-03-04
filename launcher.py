@@ -166,7 +166,7 @@ class MainWindow(QMainWindow):
         self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setFrameShape(QFrame.Shape.NoFrame)
-        self.scrollArea.setFixedHeight(expandedImageHeight + 2 * scrollMargins + 10)
+        self.scrollArea.setFixedHeight(expandedImageHeight + 2 * scrollMargins + 15)
         
         
         
@@ -227,8 +227,8 @@ class MainWindow(QMainWindow):
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
         
-        self.setMinimumHeight(870)
-        self.resize(1200, 870)
+        self.setMinimumHeight(875)
+        self.resize(1200, 875)
         self.showMaximized()
         # self.showFullScreen()
     
