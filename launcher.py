@@ -67,7 +67,7 @@ class GameTile(QWidget):
 
     def mousePressEvent(self, e: QMouseEvent) -> None:
         self.clicked.emit()
-        return super().mousePressEvent(e)
+        # return super().mousePressEvent(e)
 
     @pyqtProperty(int)
     def bottomSpacing(self) -> int:
@@ -205,6 +205,7 @@ class MainWindow(QMainWindow):
         self.gameDescription.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Expanding)
         self.gameDescription.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.gameDescription.setMaximumHeight(125)
+        self.gameDescription.setMinimumWidth(20)
         
         self.playButton = QPushButton('Play')
         font = self.font()
@@ -222,6 +223,7 @@ class MainWindow(QMainWindow):
         gameInfoLayout = QVBoxLayout()
         gameInfoLayout.addWidget(self.gameTitle)
         gameInfoLayout.addWidget(self.gameDescription)
+        gameInfoLayout.addStretch()
         gameInfoLayout.addLayout(playButtonLayout)
         gameInfoLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, 0, 0)
         
