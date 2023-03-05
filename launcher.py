@@ -102,8 +102,7 @@ class AnimatedScrollArea(QScrollArea):
         self.scrollAnimation.setDuration(100)
         self.scrollAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
 
-
-    def ensureWidgetVisible(self, childWidget: QWidget, xMargin: int = ..., yMargin: int = ...) -> None:
+    def ensureWidgetVisibleAnimated(self, childWidget: QWidget, xMargin: int = ..., yMargin: int = ...) -> None:
         contentsRect: QRect = childWidget.contentsRect()
         pos = childWidget.pos()
         scrollBarValue: int  = self.horizontalScrollBar().value()
@@ -258,7 +257,7 @@ class MainWindow(QMainWindow):
         if self.selectedTile is not None:
             animationGroup.addAnimation(self.tiles[self.selectedTile][0].shrinkAnimation)
         animationGroup.start()
-        self.scrollArea.ensureWidgetVisible(self.tiles[index][0], 200, 200)
+        self.scrollArea.ensureWidgetVisibleAnimated(self.tiles[index][0], 200, 200)
         self.selectedTile = index
 
         game = self.tiles[index][1]
