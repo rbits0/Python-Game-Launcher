@@ -243,7 +243,7 @@ class MainWindow(QMainWindow):
 
         self.tileClicked(0)
         
-        self.setMinimumHeight(875)
+        self.setMinimumSize(1000, 875)
         self.resize(1200, 875)
         self.showMaximized()
         # self.showFullScreen()
