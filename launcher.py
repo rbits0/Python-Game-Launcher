@@ -179,6 +179,10 @@ class PlayButton(QPushButton):
             self.click()
         else:
             e.ignore()
+    
+    def focusInEvent(self, e: QFocusEvent) -> None:
+        self.setStyle()
+        return super().focusInEvent(e)
         
 
 class MainWindow(QMainWindow):
@@ -413,11 +417,11 @@ class MainWindow(QMainWindow):
                     else:
                         self.tileClicked(self.selectedTile - 1)
             case Qt.Key.Key_Right:
-                self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
                 if self.sidebar.hasFocus():
                     self.tileClicked(0)
                 else:
                     self.tileClicked(self.selectedTile + 1)
+                self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
             case Qt.Key.Key_Up:
                 if self.scrollArea.hasFocus():
                     self.playButton.setFocus(Qt.FocusReason.OtherFocusReason)
