@@ -104,16 +104,16 @@ class AnimatedScrollArea(QScrollArea):
         self.scrollAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         # self.scrollEndValue = 0
 
-        self.scroller: QScroller = QScroller.scroller(self)
-        scrollerProperties = QScrollerProperties()
-        scrollerProperties.setScrollMetric(
-            QScrollerProperties.ScrollMetric.HorizontalOvershootPolicy,
-            QScrollerProperties.OvershootPolicy.OvershootAlwaysOff
-        )
+        # self.scroller: QScroller = QScroller.scroller(self)
+        # scrollerProperties = QScrollerProperties()
+        # scrollerProperties.setScrollMetric(
+        #     QScrollerProperties.ScrollMetric.HorizontalOvershootPolicy,
+        #     QScrollerProperties.OvershootPolicy.OvershootAlwaysOff
+        # )
         # scrollerProperties.setScrollMetric(QScrollerProperties.ScrollMetric.DecelerationFactor, 0.6)
-        scrollerProperties.setScrollMetric(QScrollerProperties.ScrollMetric.MaximumVelocity, 0)
-        self.scroller.setScrollerProperties(scrollerProperties)
-        QScroller.grabGesture(self, QScroller.ScrollerGestureType.LeftMouseButtonGesture)
+        # scrollerProperties.setScrollMetric(QScrollerProperties.ScrollMetric.MaximumVelocity, 0)
+        # self.scroller.setScrollerProperties(scrollerProperties)
+        # QScroller.grabGesture(self, QScroller.ScrollerGestureType.LeftMouseButtonGesture)
 
     def ensureWidgetVisibleAnimated(self, childWidget: QWidget, xMargin: int = ..., yMargin: int = ...) -> None:
         contentsRect: QRect = childWidget.contentsRect()
