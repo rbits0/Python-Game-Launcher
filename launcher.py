@@ -138,31 +138,29 @@ class MainWindow(QMainWindow):
         self.MAIN_CONTENT_PADDING = 20
 
         self.runningProcess = None
+        self.library = library
 
         testButton1 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Alphabetical order')}
         testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
         self.sidebar = sidebar.Sidebar(self, [testButton1, testButton2])
         self.sidebar.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Expanding)
+        self.sidebar.itemClicked.connect(self.sidebarClicked)
         
-        # self.sidebar.itemClicked.connect(self.testAnimation)
-        
-        # self.tempButton = QPushButton('a')
-        # self.tempButton.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         self.scrollLayout = QHBoxLayout()
         self.scrollLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, self.MAIN_CONTENT_PADDING, self.MAIN_CONTENT_PADDING)
         scrollMargins = 20
         self.tiles: list[tuple] = []
-        defaultImage = QPixmap(600, 900)
-        defaultImage.fill(Qt.GlobalColor.white)
-        imageHeight = 450
-        expandedImageHeight = 540
+        self.defaultImage = QPixmap(600, 900)
+        self.defaultImage.fill(Qt.GlobalColor.white)
+        self.imageHeight = 450
+        self.expandedImageHeight = 540
         for i, game in enumerate(library):
             image = getLibraryImage(game['id'])
             if image is None:
-                image = defaultImage
+                image = self.defaultImage
 
-            tile = GameTile(image, self, imageHeight, expandedImageHeight)
+            tile = GameTile(image, self, self.imageHeight, self.expandedImageHeight)
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
             self.tiles.append((tile, game))
             self.scrollLayout.addWidget(tile)
@@ -175,7 +173,7 @@ class MainWindow(QMainWindow):
         self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setFrameShape(QFrame.Shape.NoFrame)
-        self.scrollArea.setFixedHeight(expandedImageHeight + 2 * scrollMargins + 15)
+        self.scrollArea.setFixedHeight(self.expandedImageHeight + 2 * scrollMargins + 15)
         
         
         
@@ -248,16 +246,25 @@ class MainWindow(QMainWindow):
         # self.showFullScreen()
     
     
-    def tileClicked(self, index):
+    def tileClicked(self, index: int, animate: bool=True):
         if index == self.selectedTile:
             return
+
+        prevTile = self.tiles[self.selectedTile][0] if self.selectedTile is not None else None
+        currTile = self.tiles[index][0]
         
-        animationGroup = QParallelAnimationGroup(self)
-        animationGroup.addAnimation(self.tiles[index][0].growAnimation)
-        if self.selectedTile is not None:
-            animationGroup.addAnimation(self.tiles[self.selectedTile][0].shrinkAnimation)
-        animationGroup.start()
-        self.scrollArea.ensureWidgetVisibleAnimated(self.tiles[index][0], 200, 200)
+        if animate:
+            animationGroup = QParallelAnimationGroup(self)
+            animationGroup.addAnimation(currTile.growAnimation)
+            if self.selectedTile is not None:
+                animationGroup.addAnimation(prevTile.shrinkAnimation)
+            animationGroup.start()
+            self.scrollArea.ensureWidgetVisibleAnimated(currTile, 200)
+        else:
+            if self.selectedTile is not None:
+                prevTile.imageSize = prevTile.baseImageSize
+            currTile.imageSize = currTile.expandedImageSize
+            self.scrollArea.ensureWidgetVisible(currTile, 200, 200)
         self.selectedTile = index
 
         game = self.tiles[index][1]
@@ -305,6 +312,40 @@ class MainWindow(QMainWindow):
     def processFinished(self) -> None:
         self.playButton.setText('Play')
         self.runningProcess = None
+    
+
+    def sidebarClicked(self) -> None:
+        itemClicked = self.sidebar.currentRow()
+        if itemClicked == 0:
+            # Ascending alphabetical order
+            self.library.sort(key=lambda x: x['name'])
+        elif itemClicked == 1:
+            # Descending alphabetical order
+            self.library.sort(key=lambda x: x['name'], reverse=True)
+        
+        for tile in self.tiles:
+            self.scrollLayout.removeWidget(tile[0])
+            tile[0].deleteLater()
+        
+        self.tiles: list[tuple] = []
+        
+        for i, game in enumerate(self.library):
+            image = getLibraryImage(game['id'])
+            if image is None:
+                image = self.defaultImage
+
+            tile = GameTile(image, self, self.imageHeight, self.expandedImageHeight)
+            tile.clicked.connect(lambda i=i: self.tileClicked(i))
+            self.tiles.append((tile, game))
+            self.scrollLayout.addWidget(tile)
+        
+        self.selectedTile = None
+        self.tileClicked(0, animate=False)
+        
+        self.scrollLayout.update()
+        self.scrollWidget.update()
+        self.scrollArea.update()
+
     
 
     # def resizeEvent(self, e: QResizeEvent) -> None:
