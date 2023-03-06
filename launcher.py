@@ -121,6 +121,10 @@ class AnimatedScrollArea(QScrollArea):
             self.scrollAnimation.start()
             # print(isLeft, scrollBarValue, xPos, pos)
             # self.horizontalScrollBar().setValue(xPos)
+    
+    def wheelEvent(self, e: QWheelEvent) -> None:
+        delta = e.angleDelta().y()
+        self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta)
 
     @pyqtProperty(int)
     def xPos(self) -> int:
