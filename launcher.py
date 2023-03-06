@@ -101,6 +101,18 @@ class AnimatedScrollArea(QScrollArea):
         self.scrollAnimation = QPropertyAnimation(self.horizontalScrollBar(), b'value')
         self.scrollAnimation.setDuration(100)
         self.scrollAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        # self.scrollEndValue = 0
+
+        self.scroller: QScroller = QScroller.scroller(self)
+        scrollerProperties = QScrollerProperties()
+        scrollerProperties.setScrollMetric(
+            QScrollerProperties.ScrollMetric.HorizontalOvershootPolicy,
+            QScrollerProperties.OvershootPolicy.OvershootAlwaysOff
+        )
+        # scrollerProperties.setScrollMetric(QScrollerProperties.ScrollMetric.DecelerationFactor, 0.6)
+        scrollerProperties.setScrollMetric(QScrollerProperties.ScrollMetric.MaximumVelocity, 0)
+        self.scroller.setScrollerProperties(scrollerProperties)
+        QScroller.grabGesture(self, QScroller.ScrollerGestureType.LeftMouseButtonGesture)
 
     def ensureWidgetVisibleAnimated(self, childWidget: QWidget, xMargin: int = ..., yMargin: int = ...) -> None:
         contentsRect: QRect = childWidget.contentsRect()
@@ -122,9 +134,29 @@ class AnimatedScrollArea(QScrollArea):
             # print(isLeft, scrollBarValue, xPos, pos)
             # self.horizontalScrollBar().setValue(xPos)
     
+    def testScroll(self) -> None:
+        # self.scroller.scrollTo(QPoint(100, 100))
+        pass
+    
     def wheelEvent(self, e: QWheelEvent) -> None:
         delta = e.angleDelta().y()
-        self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta)
+        # if self.scrollAnimation.state() == QAbstractAnimation.State.Running:
+        #     newValue = self.scrollEndValue - delta
+        # else:
+        newValue = self.horizontalScrollBar().value() - delta
+        
+        self.horizontalScrollBar().setValue(newValue)
+        
+        # self.scrollEndValue = newValue
+        # self.scrollAnimation.setEndValue(newValue)
+        # self.scrollAnimation.start()
+        # if self.scroller.state() == QScroller.State.Inactive:
+        #     newValue = self.horizontalScrollBar().value() - delta
+        # else:
+        #     newValue = self.scroller.finalPosition().x() - delta
+        # self.scroller.stop()
+        # self.scroller.scrollTo(QPointF(newValue, 0))
+        
 
     @pyqtProperty(int)
     def xPos(self) -> int:
@@ -218,6 +250,7 @@ class MainWindow(QMainWindow):
         self.playButton.setMinimumWidth(150)
         self.playButton.setMaximumHeight(75)
         self.playButton.clicked.connect(self.playButtonClicked)
+        # self.playButton.clicked.connect(self.scrollArea.testScroll)
         playButtonLayout = QHBoxLayout()
         playButtonLayout.addWidget(self.playButton)
         playButtonLayout.addStretch()
