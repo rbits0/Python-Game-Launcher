@@ -185,6 +185,7 @@ class MainWindow(QMainWindow):
         topBar = QHBoxLayout()
         topBar.addStretch()
         topBar.addWidget(self.settingsButton)
+        topBar.setContentsMargins(0, 10, 10, 0)
         
         self.gameTitle = QLabel("Title")
         font = self.font()
