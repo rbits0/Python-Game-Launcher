@@ -300,11 +300,10 @@ class MainWindow(QMainWindow):
         currTile = self.tiles[index][0]
         
         if animate:
-            animationGroup = QParallelAnimationGroup(self)
-            animationGroup.addAnimation(currTile.growAnimation)
+            currTile.growAnimation.start()
             if self.selectedTile is not None:
-                animationGroup.addAnimation(prevTile.shrinkAnimation)
-            animationGroup.start()
+                prevTile.growAnimation.stop()
+                prevTile.shrinkAnimation.start()
             self.scrollArea.ensureWidgetVisibleAnimated(currTile, 200)
         else:
             if self.selectedTile is not None:
