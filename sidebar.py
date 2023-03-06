@@ -38,6 +38,8 @@ class Sidebar(QListWidget):
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setTextElideMode(Qt.TextElideMode.ElideNone)
+
+        self.setCurrentRow(0)
         
 
     def leaveEvent(self, e) -> None:
@@ -45,6 +47,14 @@ class Sidebar(QListWidget):
     
     def enterEvent(self, e) -> None:
         self.expand()
+    
+    def focusInEvent(self, e: QFocusEvent) -> None:
+        self.expand()
+        return super().focusInEvent(e)
+
+    def focusOutEvent(self, e: QFocusEvent) -> None:
+        self.contractAnimation.start()
+        return super().focusOutEvent(e)
     
 
     # def mousePressEvent(self, e: QMouseEvent) -> None:

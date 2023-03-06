@@ -67,7 +67,6 @@ class GameTile(QWidget):
 
     def mousePressEvent(self, e: QMouseEvent) -> None:
         self.clicked.emit()
-        # return super().mousePressEvent(e)
 
     @pyqtProperty(int)
     def bottomSpacing(self) -> int:
@@ -97,6 +96,8 @@ class GameTile(QWidget):
 class AnimatedScrollArea(QScrollArea):
     def __init__(self, parent: QWidget = ...) -> None:
         super().__init__(parent)
+        
+        self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
 
         self.scrollAnimation = QPropertyAnimation(self.horizontalScrollBar(), b'value')
         self.scrollAnimation.setDuration(100)
@@ -156,6 +157,9 @@ class AnimatedScrollArea(QScrollArea):
         #     newValue = self.scroller.finalPosition().x() - delta
         # self.scroller.stop()
         # self.scroller.scrollTo(QPointF(newValue, 0))
+    
+    def keyPressEvent(self, e: QKeyEvent) -> None:
+        e.ignore()
         
 
     @pyqtProperty(int)
@@ -180,7 +184,7 @@ class MainWindow(QMainWindow):
         testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
         self.sidebar = sidebar.Sidebar(self, [testButton1, testButton2])
         self.sidebar.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Expanding)
-        self.sidebar.itemClicked.connect(self.sidebarClicked)
+        self.sidebar.itemSelectionChanged.connect(self.sidebarClicked)
         
         
         self.scrollLayout = QHBoxLayout()
@@ -249,6 +253,7 @@ class MainWindow(QMainWindow):
         self.playButton.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
         self.playButton.setMinimumWidth(150)
         self.playButton.setMaximumHeight(75)
+        self.playButton.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         self.playButton.clicked.connect(self.playButtonClicked)
         # self.playButton.clicked.connect(self.scrollArea.testScroll)
         playButtonLayout = QHBoxLayout()
@@ -277,6 +282,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(centralWidget)
 
         self.tileClicked(0)
+        self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
         
         self.setMinimumSize(1000, 875)
         self.resize(1200, 875)
@@ -286,6 +292,8 @@ class MainWindow(QMainWindow):
     
     def tileClicked(self, index: int, animate: bool=True):
         if index == self.selectedTile:
+            return
+        if index >= self.scrollLayout.count():
             return
 
         prevTile = self.tiles[self.selectedTile][0] if self.selectedTile is not None else None
@@ -383,6 +391,31 @@ class MainWindow(QMainWindow):
         self.scrollLayout.update()
         self.scrollWidget.update()
         self.scrollArea.update()
+    
+
+    def keyPressEvent(self, e: QKeyEvent) -> None:
+        # print(self.scrollArea.hasFocus(), self.sidebar.hasFocus())
+        # print(e.key())
+        match e.key():
+            case Qt.Key.Key_Left:
+                if self.scrollArea.hasFocus():
+                    if self.selectedTile == 0:
+                        self.sidebar.setFocus(Qt.FocusReason.OtherFocusReason)
+                    else:
+                        self.tileClicked(self.selectedTile - 1)
+            case Qt.Key.Key_Right:
+                if self.sidebar.hasFocus():
+                    self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
+                    self.tileClicked(0)
+                elif self.scrollArea.hasFocus:
+                    self.tileClicked(self.selectedTile + 1)
+            case Qt.Key.Key_Up:
+                if self.scrollArea.hasFocus():
+                    self.playButton.setFocus(Qt.FocusReason.OtherFocusReason)
+            case Qt.Key.Key_Down:
+                if self.playButton.hasFocus():
+                    self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
+        return super().keyPressEvent(e)
 
     
 
