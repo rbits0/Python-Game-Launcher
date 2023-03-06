@@ -169,6 +169,16 @@ class AnimatedScrollArea(QScrollArea):
     @xPos.setter
     def xPos(self, xPos: int) -> None:
         self._xPos = xPos
+
+
+class PlayButton(QPushButton):
+    def keyPressEvent(self, e: QKeyEvent) -> None:
+        # print(e, e.key())
+        # print(Qt.Key.Key_Return)
+        if e.key() == Qt.Key.Key_Return:
+            self.click()
+        else:
+            e.ignore()
         
 
 class MainWindow(QMainWindow):
@@ -245,7 +255,7 @@ class MainWindow(QMainWindow):
         self.gameDescription.setMaximumHeight(125)
         self.gameDescription.setMinimumWidth(20)
         
-        self.playButton = QPushButton('Play')
+        self.playButton = PlayButton('Play')
         font = self.font()
         font.setPointSize(24)
         font.setBold(True)
@@ -253,7 +263,7 @@ class MainWindow(QMainWindow):
         self.playButton.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
         self.playButton.setMinimumWidth(150)
         self.playButton.setMaximumHeight(75)
-        self.playButton.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+        self.playButton.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.playButton.clicked.connect(self.playButtonClicked)
         # self.playButton.clicked.connect(self.scrollArea.testScroll)
         playButtonLayout = QHBoxLayout()
@@ -397,16 +407,16 @@ class MainWindow(QMainWindow):
         # print(e.key())
         match e.key():
             case Qt.Key.Key_Left:
-                if self.scrollArea.hasFocus():
+                if not self.sidebar.hasFocus():
                     if self.selectedTile == 0:
                         self.sidebar.setFocus(Qt.FocusReason.OtherFocusReason)
                     else:
                         self.tileClicked(self.selectedTile - 1)
             case Qt.Key.Key_Right:
+                self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
                 if self.sidebar.hasFocus():
-                    self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
                     self.tileClicked(0)
-                elif self.scrollArea.hasFocus:
+                else:
                     self.tileClicked(self.selectedTile + 1)
             case Qt.Key.Key_Up:
                 if self.scrollArea.hasFocus():
@@ -414,6 +424,15 @@ class MainWindow(QMainWindow):
             case Qt.Key.Key_Down:
                 if self.playButton.hasFocus():
                     self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
+            case Qt.Key.Key_Return:
+                if self.scrollArea.hasFocus():
+                    self.playButton.click()
+            case Qt.Key.Key_L:
+                self.playButton.setFocus(Qt.FocusReason.OtherFocusReason)
+            case Qt.Key.Key_K:
+                print(self.playButton.hasFocus())
+                print(self.keyboardGrabber())
+        
         return super().keyPressEvent(e)
 
     
