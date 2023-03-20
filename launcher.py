@@ -243,14 +243,24 @@ class MainWindow(QMainWindow):
         
         
         settingsButtonSize = 50
+        settingsIconSize = int(settingsButtonSize * 0.8)
         self.settingsButton = QPushButton(QIcon.fromTheme('settings'), '')
         self.settingsButton.setFixedSize(settingsButtonSize, settingsButtonSize)
-        self.settingsButton.setIconSize(QSize(int(settingsButtonSize*0.8), int(settingsButtonSize*0.8)))
+        self.settingsButton.setIconSize(QSize(settingsIconSize, settingsIconSize))
+        self.settingsButton.setToolTip('Settings')
+        
+        self.addGameButton = QPushButton(QIcon.fromTheme('add'), '')
+        self.addGameButton.setFixedSize(settingsButtonSize, settingsButtonSize)
+        self.addGameButton.setIconSize(QSize(settingsIconSize, settingsIconSize))
+        self.addGameButton.setToolTip('Add game')
+        self.addGameButton.clicked.connect(self.addGameClicked)
 
         topBar = QHBoxLayout()
         topBar.addStretch()
+        topBar.addWidget(self.addGameButton)
         topBar.addWidget(self.settingsButton)
         topBar.setContentsMargins(0, 10, 10, 0)
+        topBar.setSpacing(10)
         
         self.gameTitle = QLabel("Title")
         font = self.font()
@@ -416,6 +426,11 @@ class MainWindow(QMainWindow):
         self.scrollLayout.update()
         self.scrollWidget.update()
         self.scrollArea.update()
+
+    
+    def addGameClicked(self) -> None:
+        self.addGameWindow = AddGameWindow(self)
+        self.addGameWindow.show()
     
 
     def keyPressEvent(self, e: QKeyEvent) -> None:
@@ -456,6 +471,69 @@ class MainWindow(QMainWindow):
     # def resizeEvent(self, e: QResizeEvent) -> None:
     #     self.gameDescription.setMaximumWidth(self.scrollArea.width())
     #     return super().resizeEvent(e)
+
+
+class AddGameWindow(QMainWindow):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        
+        self.listWidget = QListWidget(self)
+        listItemManual = QListWidgetItem(QIcon.fromTheme('edit'), 'Manual')
+        # TODO: Add steam and heroic icons
+        listItemSteam = QListWidgetItem(QIcon.fromTheme('edit'), 'Steam')
+        listItemHeroic = QListWidgetItem(QIcon.fromTheme('edit'), 'Heroic')
+        
+        self.listWidget.addItem(listItemManual)
+        self.listWidget.addItem(listItemSteam)
+        self.listWidget.addItem(listItemHeroic)
+        
+        self.stackedWidget = QStackedWidget()
+        self.manualAddGameWidget = ManualAddGameScreen(self)
+        self.stackedWidget.addWidget(self.manualAddGameWidget)
+        
+        self.layout = QHBoxLayout()
+        self.layout.addWidget(self.listWidget)
+        self.layout.addWidget(self.stackedWidget)
+        
+        self.centralWidget = QWidget()
+        self.centralWidget.setLayout(self.layout)
+        self.setCentralWidget(self.centralWidget)
+
+class ManualAddGameScreen(QWidget):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        
+        self.nameLabel = QLabel('Name')
+        self.nameInput = QLineEdit()
+        # self.nameInput.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.filePathLabel = QLabel('File path')
+        self.filePathInput = QLineEdit()
+        # self.filePathInput.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+
+        self.argumentLabel = QLabel('Arguments')
+        self.argumentList = QListView()
+        self.argumentListModel = QStringListModel()
+        self.argumentList.setModel(self.argumentListModel)
+        self.argumentAddButton = QPushButton(QIcon.fromTheme('add'), '')
+        self.argumentRemoveButton = QPushButton(QIcon.fromTheme('remove'), '')
+        self.argumentButtonLayout = QVBoxLayout()
+        self.argumentButtonLayout.addWidget(self.argumentAddButton)
+        self.argumentButtonLayout.addWidget(self.argumentRemoveButton)
+        self.argumentLayout = QHBoxLayout()
+        self.argumentLayout.addWidget(self.argumentList)
+        self.argumentLayout.addLayout(self.argumentButtonLayout)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.nameLabel)
+        self.layout.addWidget(self.nameInput)
+        self.layout.addWidget(self.filePathLabel)
+        self.layout.addWidget(self.filePathInput)
+        self.layout.addWidget(self.argumentLabel)
+        self.layout.addLayout(self.argumentLayout)
+        self.layout.addStretch()
+        
+        self.setLayout(self.layout)
+        
 
 
 def readConfig() -> dict:
