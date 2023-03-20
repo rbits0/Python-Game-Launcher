@@ -181,9 +181,20 @@ class PlayButton(QPushButton):
             e.ignore()
     
     def focusInEvent(self, e: QFocusEvent) -> None:
-        self.setStyle()
+        self.setStyleSheet('QPushButton {background-color: blue;}')
+        # palette = self.parent().palette()
+        # highlightColor = palette.color(QPalette.ColorRole.Highlight)
+        # palette.setColor(QPalette.ColorRole.Button, highlightColor)
         return super().focusInEvent(e)
+    
+    def focusOutEvent(self, e: QFocusEvent) -> None:
+        self.setStyleSheet('')
+        return super().focusInEvent(e)
+    
         
+        
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self, library: list):
@@ -196,7 +207,7 @@ class MainWindow(QMainWindow):
 
         testButton1 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Alphabetical order')}
         testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
-        self.sidebar = sidebar.Sidebar(self, [testButton1, testButton2])
+        self.sidebar = sidebar.Sidebar(None, [testButton1, testButton2])
         self.sidebar.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Expanding)
         self.sidebar.itemSelectionChanged.connect(self.sidebarClicked)
         
@@ -259,7 +270,7 @@ class MainWindow(QMainWindow):
         self.gameDescription.setMaximumHeight(125)
         self.gameDescription.setMinimumWidth(20)
         
-        self.playButton = PlayButton('Play')
+        self.playButton = PlayButton('Play', self)
         font = self.font()
         font.setPointSize(24)
         font.setBold(True)
@@ -269,6 +280,7 @@ class MainWindow(QMainWindow):
         self.playButton.setMaximumHeight(75)
         self.playButton.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.playButton.clicked.connect(self.playButtonClicked)
+        # self.playButton.setStyleSheet('QPushButton:focus {background-color: blue;}')
         # self.playButton.clicked.connect(self.scrollArea.testScroll)
         playButtonLayout = QHBoxLayout()
         playButtonLayout.addWidget(self.playButton)
