@@ -406,6 +406,11 @@ class MainWindow(QMainWindow):
             # Descending alphabetical order
             self.library.sort(key=lambda x: x['name'], reverse=True)
         
+        self.refresh()
+
+    
+
+    def refresh(self, selectedTile = 0) -> None:
         for tile in self.tiles:
             self.scrollLayout.removeWidget(tile[0])
             tile[0].deleteLater()
@@ -413,6 +418,7 @@ class MainWindow(QMainWindow):
         self.tiles: list[tuple] = []
         
         for i, game in enumerate(self.library):
+            print(game['name'])
             image = getLibraryImage(game['id'])
             if image is None:
                 image = self.defaultImage
@@ -423,8 +429,8 @@ class MainWindow(QMainWindow):
             self.scrollLayout.addWidget(tile)
         
         self.selectedTile = None
-        self.tileClicked(0, animate=False)
-        
+        self.tileClicked(selectedTile, animate=False)
+
         self.scrollLayout.update()
         self.scrollWidget.update()
         self.scrollArea.update()
@@ -488,8 +494,8 @@ class AddGameWindow(QMainWindow):
         self.listWidget.addItem(listItemSteam)
         self.listWidget.addItem(listItemHeroic)
         
-        self.stackedWidget = QStackedWidget()
-        self.manualAddGameWidget = ManualAddGameScreen(library, self)
+        self.stackedWidget = QStackedWidget(self)
+        self.manualAddGameWidget = ManualAddGameScreen(library, self.parent().refresh)
         self.stackedWidget.addWidget(self.manualAddGameWidget)
         
         self.layout = QHBoxLayout()
@@ -501,10 +507,11 @@ class AddGameWindow(QMainWindow):
         self.setCentralWidget(self.centralWidget)
 
 class ManualAddGameScreen(QWidget):
-    def __init__(self, library: list, parent=None) -> None:
-        super().__init__(parent)
+    def __init__(self, library: list, refreshFunction) -> None:
+        super().__init__()
         
         self.library = library
+        self.refreshFunction = refreshFunction
         
         self.nameLabel = QLabel('Name')
         self.nameInput = QLineEdit()
@@ -580,8 +587,8 @@ class ManualAddGameScreen(QWidget):
         self.filepathInput.setText('')
         self.argumentList.clear()
         
+        self.refreshFunction()
 
-        
 
 
 def readConfig() -> dict:
