@@ -536,7 +536,20 @@ class ManualAddGameScreen(QWidget):
         self.argumentLayout.addWidget(self.argumentList)
         self.argumentLayout.addLayout(self.argumentButtonLayout)
         
-        # TODO: Add tags
+        # TODO: Load tags to and from config file
+        self.tagLabel = QLabel('Tags')
+        self.tagList = QListWidget()
+        self.tagAddButton = QPushButton(QIcon.fromTheme('add'), '')
+        self.tagAddButton.clicked.connect(self.addTag)
+        self.tagRemoveButton = QPushButton(QIcon.fromTheme('remove'), '')
+        self.tagRemoveButton.clicked.connect(self.removeTag)
+        self.tagButtonLayout = QVBoxLayout()
+        self.tagButtonLayout.addWidget(self.tagAddButton)
+        self.tagButtonLayout.addWidget(self.tagRemoveButton)
+        self.tagButtonLayout.addStretch()
+        self.tagLayout = QHBoxLayout()
+        self.tagLayout.addWidget(self.tagList)
+        self.tagLayout.addLayout(self.tagButtonLayout)
 
         self.saveButton = QPushButton('Save')
         self.saveButton.clicked.connect(self.save)
@@ -548,6 +561,8 @@ class ManualAddGameScreen(QWidget):
         self.layout.addWidget(self.filepathInput)
         self.layout.addWidget(self.argumentLabel)
         self.layout.addLayout(self.argumentLayout)
+        self.layout.addWidget(self.tagLabel)
+        self.layout.addLayout(self.tagLayout)
         self.layout.addWidget(self.saveButton)
         self.layout.addStretch()
         
@@ -562,6 +577,17 @@ class ManualAddGameScreen(QWidget):
     
     def removeArgument(self) -> None:
         self.argumentList.takeItem(self.argumentList.currentRow())
+    
+    def addTag(self) -> None:
+        self.tagList.addItem('')
+        item = self.tagList.item(self.tagList.count() - 1)
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+        item.setCheckState(Qt.CheckState.Unchecked)
+        self.tagList.setCurrentRow(self.tagList.count() - 1)
+        self.tagList.edit(self.tagList.currentIndex())
+
+    def removeTag(self) -> None:
+        self.tagList.takeItem(self.tagList.currentRow())
     
     def save(self) -> None:
         name = self.nameInput.text()
