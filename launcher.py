@@ -198,14 +198,15 @@ class PlayButton(QPushButton):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, library: list):
+    def __init__(self, library: list, config: dict):
         super().__init__()
         
         self.MAIN_CONTENT_PADDING = 20
 
         self.runningProcess = None
         self.library = library
-        self.addGameWindow = AddGameWindow(self.library, self)
+        self.config = config
+        self.addGameWindow = AddGameWindow(self.library, self.config, self)
 
         testButton1 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Alphabetical order')}
         testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
@@ -481,7 +482,7 @@ class MainWindow(QMainWindow):
 
 
 class AddGameWindow(QMainWindow):
-    def __init__(self, library: list, parent=None) -> None:
+    def __init__(self, library: list, config: dict, parent=None) -> None:
         super().__init__(parent)
         
         self.listWidget = QListWidget(self)
@@ -495,7 +496,7 @@ class AddGameWindow(QMainWindow):
         self.listWidget.addItem(listItemHeroic)
         
         self.stackedWidget = QStackedWidget(self)
-        self.manualAddGameWidget = ManualAddGameScreen(library, self.parent().refresh)
+        self.manualAddGameWidget = ManualAddGameScreen(library, config, self.parent().refresh)
         self.stackedWidget.addWidget(self.manualAddGameWidget)
         
         self.layout = QHBoxLayout()
@@ -507,10 +508,11 @@ class AddGameWindow(QMainWindow):
         self.setCentralWidget(self.centralWidget)
 
 class ManualAddGameScreen(QWidget):
-    def __init__(self, library: list, refreshFunction) -> None:
+    def __init__(self, library: list, config: dict, refreshFunction) -> None:
         super().__init__()
         
         self.library = library
+        self.config = config
         self.refreshFunction = refreshFunction
         
         self.nameLabel = QLabel('Name')
@@ -539,6 +541,11 @@ class ManualAddGameScreen(QWidget):
         # TODO: Load tags to and from config file
         self.tagLabel = QLabel('Tags')
         self.tagList = QListWidget()
+        
+        for i, tag in enumerate(self.config['tags']):
+            self.tagList.addItem(tag)
+            self.tagList.item(i).setCheckState(Qt.CheckState.Unchecked)
+
         self.tagAddButton = QPushButton(QIcon.fromTheme('add'), '')
         self.tagAddButton.clicked.connect(self.addTag)
         self.tagRemoveButton = QPushButton(QIcon.fromTheme('remove'), '')
@@ -593,6 +600,10 @@ class ManualAddGameScreen(QWidget):
         name = self.nameInput.text()
         filepath = self.filepathInput.text()
         
+        tags = [self.tagList.item(i).text() for i in range(self.tagList.count())]
+        saveTags(self.config, tags)
+        saveConfig(self.config)
+        
         if name == '':
             QMessageBox.critical(self, 'Error', 'Please enter a name')
             return
@@ -601,10 +612,7 @@ class ManualAddGameScreen(QWidget):
             QMessageBox.critical(self, 'Error', 'Please enter a filepath')
             return
 
-        args = []
-        for i in range(self.argumentList.count()):
-            text = self.argumentList.item(i).text()
-            args.append(text)
+        args = [self.argumentList.item(i).text() for i in range(self.argumentList.count())]
         
         addNativeGame(self.library, name, filepath, args)
         saveLibrary(self.library)
@@ -617,7 +625,7 @@ class ManualAddGameScreen(QWidget):
 
 
 
-def readConfig() -> dict:
+def getConfig() -> dict:
     if not os.path.exists(ARTWORK_FOLDER):
         os.mkdir(ARTWORK_FOLDER)
 
@@ -628,6 +636,10 @@ def readConfig() -> dict:
         config = json.load(file)
     
     return config
+
+def saveConfig(config: dict) -> None:
+    with open(CONFIG_FILE, 'w') as file:
+        json.dump(config, file, indent='\t')
 
 def getLibrary() -> list:
     if os.path.exists(GAMES_FILE) and os.path.getsize(GAMES_FILE) > 0:
@@ -674,16 +686,20 @@ def getNewID(library: dict) -> int:
     else:
         return max([x['id'] for x in library]) + 1
 
+
+def saveTags(config: dict, tags: list) -> None:
+    config['tags'] = tags
+
             
 
 def main(argv) -> None:
-    config = readConfig()
+    config = getConfig()
     library = getLibrary()
 
 
     app = QApplication(argv)
 
-    window = MainWindow(library)
+    window = MainWindow(library, config)
     window.show()
 
     app.exec()
