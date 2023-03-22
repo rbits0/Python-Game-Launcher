@@ -92,7 +92,7 @@ def addNativeGame(game_library, name, file_path, game_id = None):
     if not game_id:
         game_id = getNewID(game_library)
     
-    game_library.append({'name': name, 'filePath': os.path.expanduser(file_path), 'id': game_id, 'source': 'native'})
+    game_library.append({'name': name, 'filepath': os.path.expanduser(file_path), 'id': game_id, 'source': 'native'})
 
 
 def addSteamGames(game_library, games, library_path):
@@ -178,7 +178,7 @@ def launchGame(game):
     if game['source'] == 'steam':
         command = f'steam steam://rungameid/{game["appID"]}'
     elif game['source'] == 'native':
-        command = f'"{game["filePath"]}"'
+        command = f'"{game["filepath"]}"'
     subprocess.Popen(command, shell=True)
 
 
@@ -212,7 +212,7 @@ def printLibrary(game_library):
         print(f'''appID: {game['appID']}
 Location: {game['libraryPath']}''')
     elif game['source'] == 'native':
-        print(f'Executable: {game["filePath"]}')
+        print(f'Executable: {game["filepath"]}')
     
     print('''
 [l] Launch game

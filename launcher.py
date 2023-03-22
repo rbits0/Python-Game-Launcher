@@ -1,4 +1,5 @@
 import sys, os, sidebar, json
+import time
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtCore import pyqtProperty
@@ -204,6 +205,7 @@ class MainWindow(QMainWindow):
 
         self.runningProcess = None
         self.library = library
+        self.addGameWindow = AddGameWindow(self.library, self)
 
         testButton1 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Alphabetical order')}
         testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
@@ -384,7 +386,7 @@ class MainWindow(QMainWindow):
                 args = game['args']
             else:
                 args = []
-            process.start(game['filePath'], args)
+            process.start(game['filepath'], args)
 
         self.runningProcess: tuple = (process, game['id'])
         
@@ -429,7 +431,6 @@ class MainWindow(QMainWindow):
 
     
     def addGameClicked(self) -> None:
-        self.addGameWindow = AddGameWindow(self)
         self.addGameWindow.show()
     
 
@@ -474,7 +475,7 @@ class MainWindow(QMainWindow):
 
 
 class AddGameWindow(QMainWindow):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, library: list, parent=None) -> None:
         super().__init__(parent)
         
         self.listWidget = QListWidget(self)
@@ -488,7 +489,7 @@ class AddGameWindow(QMainWindow):
         self.listWidget.addItem(listItemHeroic)
         
         self.stackedWidget = QStackedWidget()
-        self.manualAddGameWidget = ManualAddGameScreen(self)
+        self.manualAddGameWidget = ManualAddGameScreen(library, self)
         self.stackedWidget.addWidget(self.manualAddGameWidget)
         
         self.layout = QHBoxLayout()
@@ -500,41 +501,86 @@ class AddGameWindow(QMainWindow):
         self.setCentralWidget(self.centralWidget)
 
 class ManualAddGameScreen(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, library: list, parent=None) -> None:
         super().__init__(parent)
+        
+        self.library = library
         
         self.nameLabel = QLabel('Name')
         self.nameInput = QLineEdit()
-        # self.nameInput.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
-        self.filePathLabel = QLabel('File path')
-        self.filePathInput = QLineEdit()
-        # self.filePathInput.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.filepathLabel = QLabel('File path')
+        self.filepathInput = QLineEdit()
 
         self.argumentLabel = QLabel('Arguments')
         self.argumentList = QListWidget()
-        self.argumentList.addItem('Test')
-        item = self.argumentList.item(0)
-        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+        # self.argumentList.addItem('Test')
+        # item = self.argumentList.item(0)
+        # item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
         self.argumentAddButton = QPushButton(QIcon.fromTheme('add'), '')
-        self.argumentAddButton.clicked.connect(lambda: self.argumentList.edit(self.argumentList.currentIndex()))
+        # self.argumentAddButton.clicked.connect(lambda: self.argumentList.edit(self.argumentList.currentIndex()))
+        self.argumentAddButton.clicked.connect(self.addArgument)
         self.argumentRemoveButton = QPushButton(QIcon.fromTheme('remove'), '')
+        self.argumentRemoveButton.clicked.connect(self.removeArgument)
         self.argumentButtonLayout = QVBoxLayout()
         self.argumentButtonLayout.addWidget(self.argumentAddButton)
         self.argumentButtonLayout.addWidget(self.argumentRemoveButton)
+        self.argumentButtonLayout.addStretch()
         self.argumentLayout = QHBoxLayout()
         self.argumentLayout.addWidget(self.argumentList)
         self.argumentLayout.addLayout(self.argumentButtonLayout)
+        
+        # TODO: Add tags
+
+        self.saveButton = QPushButton('Save')
+        self.saveButton.clicked.connect(self.save)
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.nameLabel)
         self.layout.addWidget(self.nameInput)
-        self.layout.addWidget(self.filePathLabel)
-        self.layout.addWidget(self.filePathInput)
+        self.layout.addWidget(self.filepathLabel)
+        self.layout.addWidget(self.filepathInput)
         self.layout.addWidget(self.argumentLabel)
         self.layout.addLayout(self.argumentLayout)
+        self.layout.addWidget(self.saveButton)
         self.layout.addStretch()
         
         self.setLayout(self.layout)
+    
+    def addArgument(self) -> None:
+        self.argumentList.addItem('')
+        item = self.argumentList.item(self.argumentList.count() - 1)
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+        self.argumentList.setCurrentRow(self.argumentList.count() - 1)
+        self.argumentList.edit(self.argumentList.currentIndex())
+    
+    def removeArgument(self) -> None:
+        self.argumentList.takeItem(self.argumentList.currentRow())
+    
+    def save(self) -> None:
+        name = self.nameInput.text()
+        filepath = self.filepathInput.text()
+        
+        if name == '':
+            QMessageBox.critical(self, 'Error', 'Please enter a name')
+            return
+        
+        if filepath == '':
+            QMessageBox.critical(self, 'Error', 'Please enter a filepath')
+            return
+
+        args = []
+        for i in range(self.argumentList.count()):
+            text = self.argumentList.item(i).text()
+            args.append(text)
+        
+        addNativeGame(self.library, name, filepath, args)
+        saveLibrary(self.library)
+        
+        self.nameInput.setText('')
+        self.filepathInput.setText('')
+        self.argumentList.clear()
+        
+
         
 
 
@@ -571,6 +617,29 @@ def getLibraryImage(id: int) -> QPixmap:
         return None
 
     return QPixmap(path)
+
+def saveLibrary(library: list) -> None:
+    library.sort(key = lambda x: x['name'].lower().replace('the ', ''))
+    
+    with open(GAMES_FILE, 'w') as file:
+        json.dump(library, file, indent='\t')
+    
+
+def addNativeGame(library: list, name: str, filepath: str, args: list = None, tags: list = None) -> None:
+    id = getNewID(library)
+    game = {'name': name, 'filepath': filepath, 'id': id, 'source': 'native'}
+    if args is not None and len(args) > 0:
+        game['args'] = args
+    if tags is not None and len(tags) > 0:
+        game['tags'] = tags
+    
+    library.append(game)
+
+def getNewID(library: dict) -> int:
+    if len(library) == 0:
+        return 0
+    else:
+        return max([x['id'] for x in library]) + 1
 
             
 
