@@ -538,7 +538,6 @@ class ManualAddGameScreen(QWidget):
         self.argumentLayout.addWidget(self.argumentList)
         self.argumentLayout.addLayout(self.argumentButtonLayout)
         
-        # TODO: Load tags to and from config file
         self.tagLabel = QLabel('Tags')
         self.tagList = QListWidget()
         
