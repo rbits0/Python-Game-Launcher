@@ -614,7 +614,7 @@ class ManualAddGameScreen(QWidget):
 
         args = [self.argumentList.item(i).text() for i in range(self.argumentList.count())]
         
-        addNativeGame(self.library, name, filepath, args)
+        addNativeGame(self.library, name, filepath, args, tags)
         saveLibrary(self.library)
         
         self.nameInput.setText('')
