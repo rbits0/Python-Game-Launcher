@@ -278,6 +278,7 @@ class MainWindow(QMainWindow):
     
 
     def sidebarClicked(self) -> None:
+        # TODO: Change implementation, use callbacks
         itemClicked = self.sidebar.currentRow()
         if itemClicked == 0:
             # Ascending alphabetical order
@@ -290,6 +291,7 @@ class MainWindow(QMainWindow):
 
     
     def refresh(self, selectedTile: int = 0) -> None:
+        '''Refreshes game tiles'''
         for gameTile in self.tiles:
             self.scrollLayout.removeWidget(gameTile.tile)
             gameTile.tile.deleteLater()
