@@ -2,7 +2,6 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
-import storage
 from storage import Config, Library
 
 class ManualAddGameScreen(QWidget):

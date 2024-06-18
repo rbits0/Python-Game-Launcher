@@ -1,5 +1,5 @@
-import sys, os, json
-from typing import Union, Optional
+import sys
+from typing import Optional
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
