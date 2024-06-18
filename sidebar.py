@@ -1,8 +1,11 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtCore import pyqtProperty
-from PyQt5.QtGui import *
+# from PyQt5.QtWidgets import *
+# from PyQt5.QtCore import *
+# from PyQt5.QtCore import pyqtProperty
+# from PyQt5.QtGui import *
+from PySide6.QtWidgets import *
+from PySide6.QtCore import *
+from PySide6.QtGui import *
 
 
 class Sidebar(QListWidget):
@@ -73,7 +76,7 @@ class Sidebar(QListWidget):
         return max([self.sizeHintForColumn(i) for i in range(self.count())]) + 4
 
 
-    @pyqtProperty(int)
+    @Property(int)
     def awidth(self) -> int:
         return self._awidth
     

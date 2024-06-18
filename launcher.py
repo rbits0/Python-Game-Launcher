@@ -1,9 +1,12 @@
 import sys, os, sidebar, json
 import time
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtCore import pyqtProperty
-from PyQt5.QtGui import *
+# from PyQt5.QtWidgets import *
+# from PyQt5.QtCore import *
+# from PyQt5.QtCore import pyqtProperty
+# from PyQt5.QtGui import *
+from PySide6.QtWidgets import *
+from PySide6.QtCore import *
+from PySide6.QtGui import *
 
 
 CONFIG_FOLDER = os.path.join(os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), 'PythonGameLauncher')
@@ -13,7 +16,7 @@ ARTWORK_FOLDER = os.path.join(CONFIG_FOLDER, 'artwork')
 
 
 class GameTile(QWidget):
-    clicked = pyqtSignal()
+    clicked = Signal()
 
     def __init__(self, image: QPixmap, parent: QWidget = None, imageSize = 450, expandedImageSize = 540, flags = Qt.WindowFlags()) -> None:
         super().__init__(parent, flags)
@@ -31,7 +34,7 @@ class GameTile(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         
         # Scale the image to 600x900 first so the rounded corners are consistent
-        image = image.scaled(600, 900, transformMode=Qt.TransformationMode.SmoothTransformation)
+        image = image.scaled(600, 900, mode=Qt.TransformationMode.SmoothTransformation)
 
         # Image (with rounded corners)
         radius = 30
@@ -69,7 +72,7 @@ class GameTile(QWidget):
     def mousePressEvent(self, e: QMouseEvent) -> None:
         self.clicked.emit()
 
-    @pyqtProperty(int)
+    @Property(int)
     def bottomSpacing(self) -> int:
         return self.__bottomSpacing
     
@@ -79,7 +82,7 @@ class GameTile(QWidget):
         self.layout.invalidate()
         self.__bottomSpacing = bottomSpacing
     
-    @pyqtProperty(int)
+    @Property(int)
     def imageSize(self) -> int:
         return self.__imageSize
     
@@ -163,7 +166,7 @@ class AnimatedScrollArea(QScrollArea):
         e.ignore()
         
 
-    @pyqtProperty(int)
+    @Property(int)
     def xPos(self) -> int:
         return self._xPos
 
