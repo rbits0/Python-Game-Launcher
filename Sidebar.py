@@ -50,18 +50,18 @@ class Sidebar(QListWidget):
     
     def focusInEvent(self, e: QFocusEvent) -> None:
         self.expand()
-        return super().focusInEvent(e)
+        super().focusInEvent(e)
 
     def focusOutEvent(self, e: QFocusEvent) -> None:
         self.contractAnimation.start()
-        return super().focusOutEvent(e)
+        super().focusOutEvent(e)
     
     def expand(self) -> None:
         self.expandAnimation.setEndValue(self.maxWidth())
         self.expandAnimation.start()
     
 
-    def maxWidth(self) -> None:
+    def maxWidth(self) -> int:
         return max([self.sizeHintForColumn(i) for i in range(self.count())]) + 4
 
 
@@ -89,6 +89,8 @@ class CustomDelegate(QStyledItemDelegate):
         self.ICON_R_PADDING = 5
     
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex | QPersistentModelIndex) -> None:
+        # We're drawing the text/icon ourselves so it's consistent between themes
+        
         super().paint(painter, option, index)
         
         posRect = option.rect

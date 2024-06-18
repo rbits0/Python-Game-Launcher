@@ -5,12 +5,12 @@ from PySide6.QtGui import *
 from storage import Config, Library
 
 class ManualAddGameScreen(QWidget):
-    def __init__(self, library: Library, config: Config, refreshFunction) -> None:
+    def __init__(self, library: Library, config: Config, refreshCallback) -> None:
         super().__init__()
         
         self.library = library
         self.config = config
-        self.refreshFunction = refreshFunction
+        self.refreshFunction = refreshCallback
         
         self.nameLabel = QLabel('Name')
         self.nameInput = QLineEdit()
@@ -92,10 +92,12 @@ class ManualAddGameScreen(QWidget):
         name = self.nameInput.text()
         filepath = self.filepathInput.text()
         
+        # Save newly created tags
         tags = [self.tagList.item(i).text() for i in range(self.tagList.count())]
         self.config.updateTags(tags)
         self.config.save()
         
+
         if name == '':
             QMessageBox.critical(self, 'Error', 'Please enter a name')
             return
