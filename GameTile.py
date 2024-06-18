@@ -1,3 +1,4 @@
+from typing import Optional
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -5,14 +6,14 @@ from PySide6.QtGui import *
 class GameTile(QWidget):
     clicked = Signal()
 
-    def __init__(self, image: QPixmap, parent: QWidget = None, imageSize = 450, expandedImageSize = 540, flags = Qt.WindowFlags()) -> None:
+    def __init__(self, image: QPixmap, parent: Optional[QWidget] = ..., imageSize: int = 450, expandedImageSize: int = 540, flags: Qt.WindowType = Qt.WindowFlags()) -> None:
         super().__init__(parent, flags)
         
         self.baseImageSize = imageSize
         self.expandedImageSize = expandedImageSize
 
         
-        self.__imageSize = 450
+        self.__imageSize = imageSize
         
         self.layout:QVBoxLayout = QVBoxLayout(self)
         self.layout.addStretch()
@@ -55,7 +56,7 @@ class GameTile(QWidget):
         
         self.setLayout(self.layout)
 
-    def mousePressEvent(self, e: QMouseEvent) -> None:
+    def mousePressEvent(self, _e: QMouseEvent) -> None:
         self.clicked.emit()
 
     @Property(int)

@@ -4,7 +4,7 @@ from PySide6.QtGui import *
 import storage
 
 class ManualAddGameScreen(QWidget):
-    def __init__(self, library: list, config: dict, refreshFunction) -> None:
+    def __init__(self, library: list[dict], config: dict, refreshFunction) -> None:
         super().__init__()
         
         self.library = library

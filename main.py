@@ -51,11 +51,8 @@ def main(argv) -> None:
 
 
 
-
-
-
 class MainWindow(QMainWindow):
-    def __init__(self, library: list, config: dict):
+    def __init__(self, library: list[dict], config: dict) -> None:
         super().__init__()
         
         self.MAIN_CONTENT_PADDING = 20
@@ -182,7 +179,7 @@ class MainWindow(QMainWindow):
         # self.showFullScreen()
     
     
-    def tileClicked(self, index: int, animate: bool=True):
+    def tileClicked(self, index: int, animate: bool = True) -> None:
         if index == self.selectedTile:
             return
         if index >= self.scrollLayout.count():
@@ -263,8 +260,7 @@ class MainWindow(QMainWindow):
         self.refresh()
 
     
-
-    def refresh(self, selectedTile = 0) -> None:
+    def refresh(self, selectedTile: int = 0) -> None:
         for tile in self.tiles:
             self.scrollLayout.removeWidget(tile[0])
             tile[0].deleteLater()
@@ -337,7 +333,7 @@ class PlayButton(QPushButton):
 
 
 class AnimatedScrollArea(QScrollArea):
-    def __init__(self, parent: QWidget = ...) -> None:
+    def __init__(self, parent: Optional[QWidget] = ...) -> None:
         super().__init__(parent)
         
         self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
@@ -346,7 +342,7 @@ class AnimatedScrollArea(QScrollArea):
         self.scrollAnimation.setDuration(100)
         self.scrollAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
 
-    def ensureWidgetVisibleAnimated(self, childWidget: QWidget, xMargin: int = ..., yMargin: int = ...) -> None:
+    def ensureWidgetVisibleAnimated(self, childWidget: QWidget, xMargin: int = 0, yMargin: int = 0) -> None:
         contentsRect: QRect = childWidget.contentsRect()
         pos = childWidget.pos()
         scrollBarValue: int  = self.horizontalScrollBar().value()

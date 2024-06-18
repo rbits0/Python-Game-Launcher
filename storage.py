@@ -27,7 +27,7 @@ def addTags(config: dict, tags: list) -> None:
     config['tags'] = tags
 
 
-def getLibrary() -> list:
+def getLibrary() -> list[dict]:
     if os.path.exists(GAMES_FILE) and os.path.getsize(GAMES_FILE) > 0:
         with open(GAMES_FILE, 'r') as file:
             game_library = json.load(file)
@@ -38,7 +38,7 @@ def getLibrary() -> list:
             json.dump([], file, indent='\t')
         return []
 
-def saveLibrary(library: list) -> None:
+def saveLibrary(library: list[dict]) -> None:
     library.sort(key = lambda x: x['name'].lower().replace('the ', ''))
     
     with open(GAMES_FILE, 'w') as file:
@@ -56,7 +56,7 @@ def getLibraryImage(id: int) -> QPixmap:
     return QPixmap(path)
 
 
-def addNativeGame(library: list, name: str, filepath: str, args: list = None, tags: list = None) -> None:
+def addNativeGame(library: list[dict], name: str, filepath: str, args: list = None, tags: list = None) -> None:
     id = getNewID(library)
     game = {'name': name, 'filepath': filepath, 'id': id, 'source': 'native'}
     if args is not None and len(args) > 0:

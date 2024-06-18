@@ -1,3 +1,4 @@
+from typing import Optional
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -5,7 +6,7 @@ from PySide6.QtGui import *
 from add_game_screens.ManualAddGameScreen import ManualAddGameScreen
 
 class AddGameWindow(QMainWindow):
-    def __init__(self, library: list, config: dict, parent=None) -> None:
+    def __init__(self, library: list[dict], config: dict, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         
         self.listWidget = QListWidget(self)

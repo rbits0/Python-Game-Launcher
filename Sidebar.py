@@ -1,11 +1,12 @@
 import sys
+from typing import Optional
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 
 class Sidebar(QListWidget):
-    def __init__(self, parent, buttons: list = None):
+    def __init__(self, parent, buttons: list[dict] = None) -> None:
         super().__init__(parent)
         
         if buttons is None:
@@ -41,10 +42,10 @@ class Sidebar(QListWidget):
         self.setCurrentRow(0)
         
 
-    def leaveEvent(self, e) -> None:
+    def leaveEvent(self, e: QEvent) -> None:
         self.contractAnimation.start()
     
-    def enterEvent(self, e) -> None:
+    def enterEvent(self, e: QEnterEvent) -> None:
         self.expand()
     
     def focusInEvent(self, e: QFocusEvent) -> None:
@@ -69,13 +70,15 @@ class Sidebar(QListWidget):
         return self._awidth
     
     @awidth.setter
-    def awidth(self, value) -> None:
+    def awidth(self, value: int) -> None:
         self._awidth = value
         super().setFixedWidth(self._awidth)
         
 
 class CustomDelegate(QStyledItemDelegate):
-    def __init__(self, parent, text, icon = None) -> None:
+    def __init__(self, parent: QObject, text: str, icon: QIcon = None) -> None:
+        super().__init__(parent)
+
         self.text = text
         self.icon: QIcon = icon
         self.iconSize: QSize = parent.iconSize() if icon is not None else QSize(0, 0)
@@ -84,10 +87,8 @@ class CustomDelegate(QStyledItemDelegate):
         self.RIGHT_PADDING = 10
         self.ICON_H_PADDING = 5
         self.ICON_R_PADDING = 5
-
-        super().__init__(parent)
     
-    def paint(self, painter: QPainter, option: 'QStyleOptionViewItem', index: QModelIndex) -> None:
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex | QPersistentModelIndex) -> None:
         super().paint(painter, option, index)
         
         posRect = option.rect
@@ -105,7 +106,7 @@ class CustomDelegate(QStyledItemDelegate):
         painter.drawStaticText(textPos, self.text)
 
     
-    def sizeHint(self, option: 'QStyleOptionViewItem', index: QModelIndex) -> QSize:
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         textWidth = self.text.size().width()
         textHeight = option.fontMetrics.height()
         iconWidth = self.iconSize.width()
@@ -117,7 +118,7 @@ class CustomDelegate(QStyledItemDelegate):
         
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.buttonState = False
@@ -149,13 +150,13 @@ class MainWindow(QMainWindow):
         self.sidebar.itemSelectionChanged.connect(self.sidebarChanged)
         
 
-    def sidebarChanged(self):
+    def sidebarChanged(self) -> None:
         selection = self.sidebar.selectedIndexes()[0].row()
         
         self.mainWidget.setText(str(selection))
     
 
-    def buttonPressed(self):
+    def buttonPressed(self) -> None:
         if self.buttonState:
             self.sidebar.contractAnimation.start()
         else:
