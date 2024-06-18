@@ -1,8 +1,4 @@
 import sys
-# from PyQt5.QtWidgets import *
-# from PyQt5.QtCore import *
-# from PyQt5.QtCore import pyqtProperty
-# from PyQt5.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -59,14 +55,6 @@ class Sidebar(QListWidget):
         self.contractAnimation.start()
         return super().focusOutEvent(e)
     
-
-    # def mousePressEvent(self, e: QMouseEvent) -> None:
-    #     super().mousePressEvent(e)
-    #     focusedWidget = QApplication.focusWidget()
-    #     if isinstance(focusedWidget, Sidebar):
-    #         focusedWidget.clearFocus()
-    
-
     def expand(self) -> None:
         self.expandAnimation.setEndValue(self.maxWidth())
         self.expandAnimation.start()
