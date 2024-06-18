@@ -7,6 +7,8 @@ import time
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
+from typing import Union, Optional
+import qdarktheme
 
 
 CONFIG_FOLDER = os.path.join(os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), 'PythonGameLauncher')
@@ -183,20 +185,6 @@ class PlayButton(QPushButton):
             self.click()
         else:
             e.ignore()
-    
-    def focusInEvent(self, e: QFocusEvent) -> None:
-        self.setStyleSheet('QPushButton {background-color: blue;}')
-        # palette = self.parent().palette()
-        # highlightColor = palette.color(QPalette.ColorRole.Highlight)
-        # palette.setColor(QPalette.ColorRole.Button, highlightColor)
-        return super().focusInEvent(e)
-    
-    def focusOutEvent(self, e: QFocusEvent) -> None:
-        self.setStyleSheet('')
-        return super().focusInEvent(e)
-    
-        
-        
 
 
 
@@ -700,6 +688,26 @@ def main(argv) -> None:
 
 
     app = QApplication(argv)
+    
+    qss = '''
+    QPushButton {
+        border-width: 0px;
+    }
+
+    QPushButton:!hover {
+        background-color: #2c669ff5;
+    }
+
+    QPushButton:hover {
+        background-color: #5c669ff5;
+    }
+
+    QPushButton:pressed {
+        background-color: #9a5796f4;
+    }
+    '''
+    
+    qdarktheme.setup_theme(theme='dark', additional_qss=qss)
 
     window = MainWindow(library, config)
     window.show()
