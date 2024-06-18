@@ -3,10 +3,10 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 import storage
-from storage import Config
+from storage import Config, Library
 
 class ManualAddGameScreen(QWidget):
-    def __init__(self, library: list[dict], config: Config, refreshFunction) -> None:
+    def __init__(self, library: Library, config: Config, refreshFunction) -> None:
         super().__init__()
         
         self.library = library
@@ -107,8 +107,8 @@ class ManualAddGameScreen(QWidget):
 
         args = [self.argumentList.item(i).text() for i in range(self.argumentList.count())]
         
-        storage.addNativeGame(self.library, name, filepath, args, tags)
-        storage.saveLibrary(self.library)
+        self.library.addNativeGame(name, filepath, args, tags)
+        self.library.save()
         
         self.nameInput.setText('')
         self.filepathInput.setText('')

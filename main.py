@@ -6,7 +6,7 @@ from PySide6.QtGui import *
 import qdarktheme
 
 import storage
-from storage import Config
+from storage import Config, Library
 from Sidebar import Sidebar
 from GameTile import GameTile
 from AddGameWindow import AddGameWindow
@@ -14,7 +14,7 @@ from AddGameWindow import AddGameWindow
 
 def main(argv) -> None:
     config = Config()
-    library = storage.getLibrary()
+    library = Library()
 
 
     app = QApplication(argv)
@@ -53,7 +53,7 @@ def main(argv) -> None:
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, library: list[dict], config: Config) -> None:
+    def __init__(self, library: Library, config: Config) -> None:
         super().__init__()
         
         self.MAIN_CONTENT_PADDING = 20
@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         self.defaultImage.fill(Qt.GlobalColor.white)
         self.imageHeight = 450
         self.expandedImageHeight = 540
-        for i, game in enumerate(library):
+        for i, game in enumerate(library.games):
             image = storage.getLibraryImage(game['id'])
             if image is None:
                 image = self.defaultImage
@@ -253,10 +253,10 @@ class MainWindow(QMainWindow):
         itemClicked = self.sidebar.currentRow()
         if itemClicked == 0:
             # Ascending alphabetical order
-            self.library.sort(key=lambda x: x['name'])
+            self.library.games.sort(key=lambda x: x['name'])
         elif itemClicked == 1:
             # Descending alphabetical order
-            self.library.sort(key=lambda x: x['name'], reverse=True)
+            self.library.games.sort(key=lambda x: x['name'], reverse=True)
         
         self.refresh()
 
@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
         
         self.tiles: list[tuple] = []
         
-        for i, game in enumerate(self.library):
+        for i, game in enumerate(self.library.games):
             print(game['name'])
             image = storage.getLibraryImage(game['id'])
             if image is None:

@@ -44,22 +44,41 @@ class Config:
 
 
 
-def getLibrary() -> list[dict]:
-    if os.path.exists(GAMES_FILE) and os.path.getsize(GAMES_FILE) > 0:
-        with open(GAMES_FILE, 'r') as file:
-            game_library = json.load(file)
-        
-        return game_library
-    else:
-        with open(GAMES_FILE, 'w') as file:
-            json.dump([], file, indent='\t')
-        return []
+class Library:
+    def __init__(self) -> None:
+        if os.path.getsize(GAMES_FILE) > 0:
+            with open(GAMES_FILE, 'r') as file:
+                game_library = json.load(file)
+            
+            self.games: list[dict] = game_library
+        else:
+            with open(GAMES_FILE, 'w') as file:
+                json.dump([], file, indent='\t')
 
-def saveLibrary(library: list[dict]) -> None:
-    library.sort(key = lambda x: x['name'].lower().replace('the ', ''))
-    
-    with open(GAMES_FILE, 'w') as file:
-        json.dump(library, file, indent='\t')
+            self.games: list[dict] = []
+
+    def save(self) -> None:
+        self.games.sort(key = lambda x: x['name'].lower().replace('the ', ''))
+        
+        with open(GAMES_FILE, 'w') as file:
+            json.dump(self.games, file, indent='\t')
+
+    def addNativeGame(self, name: str, filepath: str, args: list = None, tags: list = None) -> None:
+        id = self.getNewID()
+
+        game = {'name': name, 'filepath': filepath, 'id': id, 'source': 'native'}
+        if args is not None and len(args) > 0:
+            game['args'] = args
+        if tags is not None and len(tags) > 0:
+            game['tags'] = tags
+        
+        self.games.append(game)
+
+    def getNewID(self) -> int:
+        if len(self.games) == 0:
+            return 0
+        else:
+            return max([x['id'] for x in self.games]) + 1
 
 
 def getLibraryImage(id: int) -> QPixmap:
@@ -73,19 +92,5 @@ def getLibraryImage(id: int) -> QPixmap:
     return QPixmap(path)
 
 
-def addNativeGame(library: list[dict], name: str, filepath: str, args: list = None, tags: list = None) -> None:
-    id = getNewID(library)
-    game = {'name': name, 'filepath': filepath, 'id': id, 'source': 'native'}
-    if args is not None and len(args) > 0:
-        game['args'] = args
-    if tags is not None and len(tags) > 0:
-        game['tags'] = tags
-    
-    library.append(game)
 
-def getNewID(library: dict) -> int:
-    if len(library) == 0:
-        return 0
-    else:
-        return max([x['id'] for x in library]) + 1
 
