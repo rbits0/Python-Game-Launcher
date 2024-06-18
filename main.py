@@ -1,5 +1,5 @@
 import sys
-from typing import Optional
+from typing import Optional, NamedTuple
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -10,6 +10,15 @@ from storage import Config, Library
 from Sidebar import Sidebar
 from GameTile import GameTile
 from AddGameWindow import AddGameWindow
+
+
+GameTileInfo = NamedTuple(
+    'GameTileInfo',
+    [
+        ('tile', GameTile),
+        ('game', dict),
+    ]
+)
 
 
 def main(argv) -> None:
@@ -63,6 +72,9 @@ class MainWindow(QMainWindow):
         self.config = config
         self.addGameWindow = AddGameWindow(self.library, self.config, self)
 
+
+        # Sidebar
+
         testButton1 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Alphabetical order')}
         testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
         self.sidebar = Sidebar(None, [testButton1, testButton2])
@@ -70,10 +82,12 @@ class MainWindow(QMainWindow):
         self.sidebar.itemSelectionChanged.connect(self.sidebarClicked)
         
         
+        # Scroll area with games
+        
         self.scrollLayout = QHBoxLayout()
         self.scrollLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, self.MAIN_CONTENT_PADDING, self.MAIN_CONTENT_PADDING)
         scrollMargins = 20
-        self.tiles: list[tuple] = []
+        self.tiles: list[GameTileInfo] = []
         self.defaultImage = QPixmap(600, 900)
         self.defaultImage.fill(Qt.GlobalColor.white)
         self.imageHeight = 450
@@ -85,7 +99,7 @@ class MainWindow(QMainWindow):
 
             tile = GameTile(image, self, self.imageHeight, self.expandedImageHeight)
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
-            self.tiles.append((tile, game))
+            self.tiles.append(GameTileInfo(tile, game))
             self.scrollLayout.addWidget(tile)
         self.selectedTile = None
 
@@ -99,6 +113,7 @@ class MainWindow(QMainWindow):
         self.scrollArea.setFixedHeight(self.expandedImageHeight + 2 * scrollMargins + 15)
         
         
+        # Buttons at the top
         
         settingsButtonSize = 50
         settingsIconSize = int(settingsButtonSize * 0.8)
@@ -119,6 +134,9 @@ class MainWindow(QMainWindow):
         topBar.addWidget(self.settingsButton)
         topBar.setContentsMargins(0, 10, 10, 0)
         topBar.setSpacing(10)
+        
+        
+        # Game info
         
         self.gameTitle = QLabel("Title")
         font = self.font()
@@ -156,6 +174,9 @@ class MainWindow(QMainWindow):
         gameInfoLayout.addStretch()
         gameInfoLayout.addLayout(playButtonLayout)
         gameInfoLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, 0, 0)
+
+        
+        # Main contents (everything except sidebar)
         
         mainContentsLayout = QVBoxLayout()
         mainContentsLayout.addLayout(topBar)
@@ -167,6 +188,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(mainContentsLayout)
         layout.setContentsMargins(0, 0, 0, 0)
         
+
         centralWidget = QWidget(self)
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
@@ -181,13 +203,15 @@ class MainWindow(QMainWindow):
     
     
     def tileClicked(self, index: int, animate: bool = True) -> None:
+        """Select a tile and optionally start the selection animation"""
+        
         if index == self.selectedTile:
             return
         if index >= self.scrollLayout.count():
             return
 
-        prevTile = self.tiles[self.selectedTile][0] if self.selectedTile is not None else None
-        currTile = self.tiles[index][0]
+        prevTile = self.tiles[self.selectedTile].tile if self.selectedTile is not None else None
+        currTile = self.tiles[index].tile
         
         if animate:
             currTile.growAnimation.start()
@@ -201,8 +225,12 @@ class MainWindow(QMainWindow):
             currTile.imageSize = currTile.expandedImageSize
             self.scrollArea.ensureWidgetVisible(currTile, 200, 200)
         self.selectedTile = index
+        
+        self.updateGameInfo()
 
-        game = self.tiles[index][1]
+
+    def updateGameInfo(self) -> None:
+        game = self.tiles[self.selectedTile].game
         self.gameTitle.setText(game['name'])
         if 'description' not in game.keys() or game['description'] is None:
             self.gameDescription.setText('No description')
@@ -218,7 +246,7 @@ class MainWindow(QMainWindow):
     
     def playButtonClicked(self) -> None:
         if self.playButton.text() == 'Play':
-            game: dict = self.tiles[self.selectedTile][1]
+            game: dict = self.tiles[self.selectedTile].game
             self.launchGame(game)
             self.playButton.setText('Stop')
         else:
@@ -262,11 +290,11 @@ class MainWindow(QMainWindow):
 
     
     def refresh(self, selectedTile: int = 0) -> None:
-        for tile in self.tiles:
-            self.scrollLayout.removeWidget(tile[0])
-            tile[0].deleteLater()
+        for gameTile in self.tiles:
+            self.scrollLayout.removeWidget(gameTile.tile)
+            gameTile.tile.deleteLater()
         
-        self.tiles: list[tuple] = []
+        self.tiles: list[GameTileInfo] = []
         
         for i, game in enumerate(self.library.games):
             print(game['name'])
@@ -276,7 +304,7 @@ class MainWindow(QMainWindow):
 
             tile = GameTile(image, self, self.imageHeight, self.expandedImageHeight)
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
-            self.tiles.append((tile, game))
+            self.tiles.append(GameTileInfo(tile, game))
             self.scrollLayout.addWidget(tile)
         
         self.selectedTile = None
