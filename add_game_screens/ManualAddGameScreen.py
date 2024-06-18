@@ -1,10 +1,12 @@
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
+
 import storage
+from storage import Config
 
 class ManualAddGameScreen(QWidget):
-    def __init__(self, library: list[dict], config: dict, refreshFunction) -> None:
+    def __init__(self, library: list[dict], config: Config, refreshFunction) -> None:
         super().__init__()
         
         self.library = library
@@ -33,7 +35,7 @@ class ManualAddGameScreen(QWidget):
         self.tagLabel = QLabel('Tags')
         self.tagList = QListWidget()
         
-        for i, tag in enumerate(self.config['tags']):
+        for i, tag in enumerate(self.config.tags):
             self.tagList.addItem(tag)
             self.tagList.item(i).setCheckState(Qt.CheckState.Unchecked)
 
@@ -92,8 +94,8 @@ class ManualAddGameScreen(QWidget):
         filepath = self.filepathInput.text()
         
         tags = [self.tagList.item(i).text() for i in range(self.tagList.count())]
-        storage.addTags(self.config, tags)
-        storage.saveConfig(self.config)
+        self.config.updateTags(tags)
+        self.config.save()
         
         if name == '':
             QMessageBox.critical(self, 'Error', 'Please enter a name')

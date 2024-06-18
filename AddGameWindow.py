@@ -4,9 +4,10 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 from add_game_screens.ManualAddGameScreen import ManualAddGameScreen
+from storage import Config
 
 class AddGameWindow(QMainWindow):
-    def __init__(self, library: list[dict], config: dict, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, library: list[dict], config: Config, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         
         self.listWidget = QListWidget(self)

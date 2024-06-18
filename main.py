@@ -6,13 +6,14 @@ from PySide6.QtGui import *
 import qdarktheme
 
 import storage
+from storage import Config
 from Sidebar import Sidebar
 from GameTile import GameTile
 from AddGameWindow import AddGameWindow
 
 
 def main(argv) -> None:
-    config = storage.getConfig()
+    config = Config()
     library = storage.getLibrary()
 
 
@@ -52,7 +53,7 @@ def main(argv) -> None:
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, library: list[dict], config: dict) -> None:
+    def __init__(self, library: list[dict], config: Config) -> None:
         super().__init__()
         
         self.MAIN_CONTENT_PADDING = 20

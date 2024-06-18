@@ -6,25 +6,42 @@ CONFIG_FILE = os.path.join(CONFIG_FOLDER, 'config.json')
 GAMES_FILE = os.path.join(CONFIG_FOLDER, 'games.json')
 ARTWORK_FOLDER = os.path.join(CONFIG_FOLDER, 'artwork')
 
-def getConfig() -> dict:
-    if not os.path.exists(ARTWORK_FOLDER):
-        os.mkdir(ARTWORK_FOLDER)
 
-    if not os.path.exists(CONFIG_FILE):
-        return False
+class Config:
+    def __init__(self) -> None:
+        if not os.path.exists(CONFIG_FOLDER):
+            os.mkdir(CONFIG_FOLDER)
+
+        if not os.path.exists(ARTWORK_FOLDER):
+            os.mkdir(ARTWORK_FOLDER)
+
+        if not os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, 'w'):
+                pass
+        
+        if not os.path.exists(GAMES_FILE):
+            with open(GAMES_FILE, 'w'):
+                pass
+        
+
+        with open(CONFIG_FILE, 'r') as file:
+            config = json.load(file)
+        
+        self.steam_path: str = config['steamPath']
+        self.tags: list[str] = config['tags']
     
-    with open(CONFIG_FILE, 'r') as file:
-        config = json.load(file)
+    def save(self) -> None:
+        config = {
+            'steamPath': self.steamPath,
+            'tags': self.tags,
+        }
+        
+        with open(CONFIG_FILE, 'w') as file:
+            json.dump(config, file, indent='\t')
     
-    return config
+    def updateTags(self, tags: list[str]) -> None:
+        self.tags = tags
 
-def saveConfig(config: dict) -> None:
-    with open(CONFIG_FILE, 'w') as file:
-        json.dump(config, file, indent='\t')
-
-
-def addTags(config: dict, tags: list) -> None:
-    config['tags'] = tags
 
 
 def getLibrary() -> list[dict]:
