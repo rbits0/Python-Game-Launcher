@@ -705,6 +705,12 @@ def main(argv) -> None:
     QPushButton:pressed {
         background-color: #9a5796f4;
     }
+    
+    /* For some reason, this stops the item's text from moving when you hover over it */
+    QAbstractItemView::item {
+        background-color: #00000000;
+    }
+    
     '''
     
     qdarktheme.setup_theme(theme='dark', additional_qss=qss)

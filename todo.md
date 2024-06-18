@@ -1,5 +1,6 @@
 ## Important
 - [ ] Fix checklist style
+- [ ] Fix carousel shaking when switching items
 - [ ] Add keyboard navigation
 - [ ] Add controller navigation
 - [ ] Create "add game" screen
