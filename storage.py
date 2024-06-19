@@ -47,16 +47,18 @@ class Config:
 
 class Library:
     def __init__(self) -> None:
+        self.games: list[dict]
+        
         if os.path.getsize(GAMES_FILE) > 0:
             with open(GAMES_FILE, 'r') as file:
                 game_library = json.load(file)
             
-            self.games: list[dict] = game_library
+            self.games = game_library
         else:
             with open(GAMES_FILE, 'w') as file:
                 json.dump([], file, indent='\t')
 
-            self.games: list[dict] = []
+            self.games = []
 
     def save(self) -> None:
         self.games.sort(key = lambda x: x['name'].lower().replace('the ', ''))
@@ -64,7 +66,13 @@ class Library:
         with open(GAMES_FILE, 'w') as file:
             json.dump(self.games, file, indent='\t')
 
-    def addNativeGame(self, name: str, filepath: str, args: list = None, tags: list = None) -> None:
+    def addNativeGame(
+        self,
+        name: str,
+        filepath: str,
+        args: Optional[list] = None,
+        tags: Optional[list] = None
+    ) -> None:
         id = self.getNewID()
 
         game = {'name': name, 'filepath': filepath, 'id': id, 'source': 'native'}
@@ -82,7 +90,7 @@ class Library:
             return max([x['id'] for x in self.games]) + 1
 
 
-def getLibraryImage(id: int) -> QPixmap:
+def getLibraryImage(id: int) -> Optional[QPixmap]:
     if os.path.exists(os.path.join(ARTWORK_FOLDER, f'{id}_library_image.jpg')):
         path = os.path.join(ARTWORK_FOLDER, f'{id}_library_image.jpg')
     elif os.path.exists(os.path.join(ARTWORK_FOLDER, f'{id}_library_image.png')):

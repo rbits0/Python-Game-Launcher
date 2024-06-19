@@ -13,11 +13,9 @@ SidebarButton = NamedTuple('SidebarButton', [
 
 
 class Sidebar(QListWidget):
-    def __init__(self, parent: Optional[QWidget] = None, buttons: list[SidebarButton] = None) -> None:
+    def __init__(self, buttons: list[SidebarButton], parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         
-        if buttons is None:
-            buttons = [SidebarButton(None, '', lambda: None)]
         self.buttons = buttons
         
         font = QFont()
@@ -30,19 +28,19 @@ class Sidebar(QListWidget):
             self.setItemDelegateForRow(i, CustomDelegate(self, button.text, button.icon))
         
         iconWidth = self.iconSize().width()
-        leftPadding = self.itemDelegateForRow(0).LEFT_PADDING
-        rightPadding = self.itemDelegateForRow(0).ICON_R_PADDING
+        leftPadding = CustomDelegate.LEFT_PADDING
+        rightPadding = CustomDelegate.ICON_R_PADDING
         self.minWidth = iconWidth + leftPadding + rightPadding + 4
-        self.fixedWidth = self.minWidth
+        self.fixedWidth = self.minWidth # type: ignore
         
         self.expandAnimation = QPropertyAnimation(self, b'fixedWidth')
         self.expandAnimation.setDuration(200)
-        self.expandAnimation.setEasingCurve(QEasingCurve.InOutCubic)
+        self.expandAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         
         self.contractAnimation = QPropertyAnimation(self, b'fixedWidth')
         self.contractAnimation.setEndValue(self.minWidth)
         self.contractAnimation.setDuration(200)
-        self.contractAnimation.setEasingCurve(QEasingCurve.InOutCubic)
+        self.contractAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setTextElideMode(Qt.TextElideMode.ElideNone)
@@ -90,25 +88,26 @@ class Sidebar(QListWidget):
     def fixedWidth(self) -> int:
         return self._fixedWidth
     
-    @fixedWidth.setter
+    @fixedWidth.setter # type: ignore
     def fixedWidth(self, value: int) -> None:
         self._fixedWidth = value
         self.setFixedWidth(self._fixedWidth)
         
 
 class CustomDelegate(QStyledItemDelegate):
-    def __init__(self, parent: QObject, text: QStaticText, icon: QIcon = None) -> None:
+    LEFT_PADDING = 5
+    RIGHT_PADDING = 10
+    ICON_H_PADDING = 5
+    ICON_R_PADDING = 5
+    
+    def __init__(self, parent: QObject, text: QStaticText, icon: Optional[QIcon] = None) -> None:
         super().__init__(parent)
 
         self.text = text
         self.icon: QIcon = icon
         self.iconSize: QSize = parent.iconSize() if icon is not None else QSize(0, 0)
         
-        self.LEFT_PADDING = 5
-        self.RIGHT_PADDING = 10
-        self.ICON_H_PADDING = 5
-        self.ICON_R_PADDING = 5
-    
+
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex | QPersistentModelIndex) -> None:
         # We're drawing the text/icon ourselves so it's consistent between themes
         

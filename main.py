@@ -359,7 +359,7 @@ class PlayButton(QPushButton):
 
 
 class AnimatedScrollArea(QScrollArea):
-    def __init__(self, parent: Optional[QWidget] = ...) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         
         self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)

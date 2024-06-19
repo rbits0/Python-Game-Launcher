@@ -6,17 +6,17 @@ from PySide6.QtGui import * # type: ignore
 class GameTile(QWidget):
     clicked = Signal()
 
-    def __init__(self, image: QPixmap, parent: Optional[QWidget] = ..., imageSize: int = 450, expandedImageSize: int = 540, flags: Qt.WindowType = Qt.WindowFlags()) -> None:
-        super().__init__(parent, flags)
+    def __init__(self, image: QPixmap, parent: Optional[QWidget] = None, imageSize: int = 450, expandedImageSize: int = 540) -> None:
+        super().__init__(parent)
         
         self.baseImageSize = imageSize
         self.expandedImageSize = expandedImageSize
 
         
-        self.__imageSize = imageSize
+        self._imageSize = imageSize
         
-        self.layout:QVBoxLayout = QVBoxLayout(self)
-        self.layout.addStretch()
+        self.mainLayout: QVBoxLayout = QVBoxLayout(self)
+        self.mainLayout.addStretch()
         
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         
@@ -36,7 +36,7 @@ class GameTile(QWidget):
         self.imageLabel = QLabel(self)
         self.imageLabel.setPixmap(self.image.scaledToHeight(self.imageSize, Qt.TransformationMode.SmoothTransformation))
         self.imageLabel.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        self.layout.addWidget(self.imageLabel)
+        self.mainLayout.addWidget(self.imageLabel)
         
         # self.titleLabel = QLabel(text, self)
         # font = self.font()
@@ -54,26 +54,26 @@ class GameTile(QWidget):
         self.shrinkAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.shrinkAnimation.setDuration(100)
         
-        self.setLayout(self.layout)
+        self.setLayout(self.mainLayout)
 
     def mousePressEvent(self, _e: QMouseEvent) -> None:
         self.clicked.emit()
 
     @Property(int)
     def bottomSpacing(self) -> int:
-        return self.__bottomSpacing
+        return self._bottomSpacing
     
-    @bottomSpacing.setter
+    @bottomSpacing.setter # type: ignore
     def bottomSpacing(self, bottomSpacing: int) -> None:
         self.spacer.changeSize(1, bottomSpacing)
-        self.layout.invalidate()
-        self.__bottomSpacing = bottomSpacing
+        self.mainLayout.invalidate()
+        self._bottomSpacing = bottomSpacing
     
     @Property(int)
     def imageSize(self) -> int:
-        return self.__imageSize
+        return self._imageSize
     
-    @imageSize.setter
+    @imageSize.setter # type: ignore
     def imageSize(self, imageSize: int) -> None:
         if imageSize == self.baseImageSize or self.expandedImageSize:
             # Smooth
@@ -81,4 +81,4 @@ class GameTile(QWidget):
         else:
             # Fast
             self.imageLabel.setPixmap(self.image.scaledToHeight(imageSize, Qt.TransformationMode.FastTransformation))
-        self.__imageSize = imageSize
+        self._imageSize = imageSize
