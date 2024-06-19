@@ -27,7 +27,7 @@ class Config:
         with open(CONFIG_FILE, 'r') as file:
             config = json.load(file)
         
-        self.steam_path: str = config['steamPath']
+        self.steamPath: str = config['steamPath']
         self.tags: list[str] = config['tags']
     
     def save(self) -> None:
