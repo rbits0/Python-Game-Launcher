@@ -33,13 +33,13 @@ class Sidebar(QListWidget):
         leftPadding = self.itemDelegateForRow(0).LEFT_PADDING
         rightPadding = self.itemDelegateForRow(0).ICON_R_PADDING
         self.minWidth = iconWidth + leftPadding + rightPadding + 4
-        self.awidth = self.minWidth
+        self.fixedWidth = self.minWidth
         
-        self.expandAnimation = QPropertyAnimation(self, b'awidth')
+        self.expandAnimation = QPropertyAnimation(self, b'fixedWidth')
         self.expandAnimation.setDuration(200)
         self.expandAnimation.setEasingCurve(QEasingCurve.InOutCubic)
         
-        self.contractAnimation = QPropertyAnimation(self, b'awidth')
+        self.contractAnimation = QPropertyAnimation(self, b'fixedWidth')
         self.contractAnimation.setEndValue(self.minWidth)
         self.contractAnimation.setDuration(200)
         self.contractAnimation.setEasingCurve(QEasingCurve.InOutCubic)
@@ -80,14 +80,20 @@ class Sidebar(QListWidget):
         self.buttons[index].callback()
 
 
-    @Property(int)
-    def awidth(self) -> int:
-        return self._awidth
+    @Property(int, doc=
+        '''
+        Width of the sidebar
+        
+        Whenever it is changed, it calls self.setFixedWidth with the new value
+        '''
+    )
+    def fixedWidth(self) -> int:
+        return self._fixedWidth
     
-    @awidth.setter
-    def awidth(self, value: int) -> None:
-        self._awidth = value
-        super().setFixedWidth(self._awidth)
+    @fixedWidth.setter
+    def fixedWidth(self, value: int) -> None:
+        self._fixedWidth = value
+        self.setFixedWidth(self._fixedWidth)
         
 
 class CustomDelegate(QStyledItemDelegate):
