@@ -295,7 +295,6 @@ class MainWindow(QMainWindow):
         self.tiles: list[GameTileInfo] = []
         
         for i, game in enumerate(self.library.games):
-            print(game['name'])
             image = storage.getLibraryImage(game['id'])
             if image is None:
                 image = self.defaultImage
