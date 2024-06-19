@@ -1,4 +1,5 @@
 import os, json
+from typing import Optional
 from PySide6.QtGui import QPixmap
 
 CONFIG_FOLDER = os.path.join(os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), 'PythonGameLauncher')

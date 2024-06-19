@@ -1,9 +1,9 @@
 import sys
 from typing import Optional, NamedTuple
 from PySide6.QtWidgets import *
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-import qdarktheme
+from PySide6.QtCore import * # type: ignore
+from PySide6.QtGui import * # type: ignore
+import qdarktheme # type: ignore
 
 import storage
 from storage import Config, Library

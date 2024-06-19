@@ -1,7 +1,7 @@
 from typing import Callable
 from PySide6.QtWidgets import *
-from PySide6.QtCore import *
-from PySide6.QtGui import *
+from PySide6.QtCore import * # type: ignore
+from PySide6.QtGui import * # type: ignore
 
 from storage import Config, Library
 

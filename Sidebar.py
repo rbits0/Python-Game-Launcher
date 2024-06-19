@@ -1,8 +1,8 @@
 import sys
 from typing import Optional, NamedTuple, Callable
-from PySide6.QtWidgets import *
-from PySide6.QtCore import *
-from PySide6.QtGui import *
+from PySide6.QtWidgets import * 
+from PySide6.QtCore import * # type: ignore
+from PySide6.QtGui import * # type: ignore
 
 
 SidebarButton = NamedTuple('SidebarButton', [

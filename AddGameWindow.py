@@ -1,7 +1,7 @@
 from typing import Optional
 from PySide6.QtWidgets import *
-from PySide6.QtCore import *
-from PySide6.QtGui import *
+from PySide6.QtCore import * # type: ignore
+from PySide6.QtGui import * # type: ignore
 
 from add_game_screens.ManualAddGameScreen import ManualAddGameScreen
 from storage import Config, Library
