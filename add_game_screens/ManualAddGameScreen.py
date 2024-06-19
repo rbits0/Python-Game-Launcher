@@ -1,3 +1,4 @@
+from typing import Callable
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -5,12 +6,12 @@ from PySide6.QtGui import *
 from storage import Config, Library
 
 class ManualAddGameScreen(QWidget):
-    def __init__(self, library: Library, config: Config, refreshCallback) -> None:
+    def __init__(self, library: Library, config: Config, refreshCallback: Callable[[], None]) -> None:
         super().__init__()
         
         self.library = library
         self.config = config
-        self.refreshFunction = refreshCallback
+        self.refreshCallback = refreshCallback
         
         self.nameLabel = QLabel('Name')
         self.nameInput = QLineEdit()
@@ -115,4 +116,4 @@ class ManualAddGameScreen(QWidget):
         self.filepathInput.setText('')
         self.argumentList.clear()
         
-        self.refreshFunction()
+        self.refreshCallback()
