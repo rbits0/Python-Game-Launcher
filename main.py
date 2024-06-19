@@ -7,7 +7,7 @@ import qdarktheme
 
 import storage
 from storage import Config, Library
-from Sidebar import Sidebar
+from Sidebar import Sidebar, SidebarButton
 from GameTile import GameTile
 from AddGameWindow import AddGameWindow
 
@@ -75,11 +75,18 @@ class MainWindow(QMainWindow):
 
         # Sidebar
 
-        testButton1 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Alphabetical order')}
-        testButton2 = {'icon': QIcon.fromTheme('view-sort-ascending-name'), 'text': QStaticText('Reverse')}
-        self.sidebar = Sidebar(None, [testButton1, testButton2])
+        testButton1 = SidebarButton(
+            QIcon.fromTheme('view-sort-ascending-name'),
+            QStaticText('Alphabetical order'),
+            lambda: self.sortGamesByName(True),
+        )
+        testButton2 = SidebarButton(
+            QIcon.fromTheme('view-sort-descending-name'),
+            QStaticText('Alphabetical order'),
+            lambda: self.sortGamesByName(False),
+        )
+        self.sidebar = Sidebar(buttons = [testButton1, testButton2])
         self.sidebar.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Expanding)
-        self.sidebar.itemSelectionChanged.connect(self.sidebarClicked)
         
         
         # Scroll area with games
@@ -277,16 +284,8 @@ class MainWindow(QMainWindow):
         self.runningProcess = None
     
 
-    def sidebarClicked(self) -> None:
-        # TODO: Change implementation, use callbacks
-        itemClicked = self.sidebar.currentRow()
-        if itemClicked == 0:
-            # Ascending alphabetical order
-            self.library.games.sort(key=lambda x: x['name'])
-        elif itemClicked == 1:
-            # Descending alphabetical order
-            self.library.games.sort(key=lambda x: x['name'], reverse=True)
-        
+    def sortGamesByName(self, ascending: bool = True) -> None:
+        self.library.games.sort(key = lambda x: x['name'], reverse = not ascending)
         self.refresh()
 
     

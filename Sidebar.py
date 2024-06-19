@@ -1,25 +1,33 @@
 import sys
-from typing import Optional
+from typing import Optional, NamedTuple, Callable
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 
+SidebarButton = NamedTuple('SidebarButton', [
+    ('icon', QIcon),
+    ('text', QStaticText),
+    ('callback', Callable[[], None]),
+])
+
+
 class Sidebar(QListWidget):
-    def __init__(self, parent, buttons: list[dict] = None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None, buttons: list[SidebarButton] = None) -> None:
         super().__init__(parent)
         
         if buttons is None:
-            buttons = [{'icon': None, 'text': ''}]
+            buttons = [SidebarButton(None, '', lambda: None)]
+        self.buttons = buttons
         
         font = QFont()
         font.setPointSize(20)
         self.setFont(font)
         self.setIconSize(QSize(48, 48))
 
-        for i, button in enumerate(buttons):
+        for i, button in enumerate(self.buttons):
             self.addItem(QListWidgetItem())
-            self.setItemDelegateForRow(i, CustomDelegate(self, button['text'], button['icon']))
+            self.setItemDelegateForRow(i, CustomDelegate(self, button.text, button.icon))
         
         iconWidth = self.iconSize().width()
         leftPadding = self.itemDelegateForRow(0).LEFT_PADDING
@@ -41,6 +49,8 @@ class Sidebar(QListWidget):
 
         self.setCurrentRow(0)
         
+        self.itemSelectionChanged.connect(self.handleItemSelectionChanged)
+        
 
     def leaveEvent(self, e: QEvent) -> None:
         self.contractAnimation.start()
@@ -60,9 +70,14 @@ class Sidebar(QListWidget):
         self.expandAnimation.setEndValue(self.maxWidth())
         self.expandAnimation.start()
     
-
+    
     def maxWidth(self) -> int:
         return max([self.sizeHintForColumn(i) for i in range(self.count())]) + 4
+    
+    
+    def handleItemSelectionChanged(self) -> None:
+        index = self.currentRow()
+        self.buttons[index].callback()
 
 
     @Property(int)
@@ -76,7 +91,7 @@ class Sidebar(QListWidget):
         
 
 class CustomDelegate(QStyledItemDelegate):
-    def __init__(self, parent: QObject, text: str, icon: QIcon = None) -> None:
+    def __init__(self, parent: QObject, text: QStaticText, icon: QIcon = None) -> None:
         super().__init__(parent)
 
         self.text = text
