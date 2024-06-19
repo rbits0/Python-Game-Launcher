@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable
 from PySide6.QtWidgets import *
 from PySide6.QtCore import * # type: ignore
 from PySide6.QtGui import * # type: ignore
@@ -7,7 +7,13 @@ from add_game_screens.ManualAddGameScreen import ManualAddGameScreen
 from storage import Config, Library
 
 class AddGameWindow(QMainWindow):
-    def __init__(self, library: Library, config: Config, parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self,
+        library: Library,
+        config: Config,
+        refreshCallback: Callable[[], None],
+        parent: Optional[QWidget] = None,
+    ) -> None:
         super().__init__(parent)
         
         self.listWidget = QListWidget(self)
@@ -21,13 +27,13 @@ class AddGameWindow(QMainWindow):
         self.listWidget.addItem(listItemHeroic)
         
         self.stackedWidget = QStackedWidget(self)
-        self.manualAddGameWidget = ManualAddGameScreen(library, config, self.parent().refresh)
+        self.manualAddGameWidget = ManualAddGameScreen(library, config, refreshCallback)
         self.stackedWidget.addWidget(self.manualAddGameWidget)
         
-        self.layout = QHBoxLayout()
-        self.layout.addWidget(self.listWidget)
-        self.layout.addWidget(self.stackedWidget)
+        self.mainLayout = QHBoxLayout()
+        self.mainLayout.addWidget(self.listWidget)
+        self.mainLayout.addWidget(self.stackedWidget)
         
-        self.centralWidget = QWidget()
-        self.centralWidget.setLayout(self.layout)
-        self.setCentralWidget(self.centralWidget)
+        self.centralWidget_ = QWidget()
+        self.centralWidget_.setLayout(self.mainLayout)
+        self.setCentralWidget(self.centralWidget_)

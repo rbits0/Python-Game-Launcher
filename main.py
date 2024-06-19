@@ -12,9 +12,14 @@ from GameTile import GameTile
 from AddGameWindow import AddGameWindow
 
 
-GameTileInfo = NamedTuple('GameTileInfo',[
+GameTileInfo = NamedTuple('GameTileInfo', [
     ('tile', GameTile),
     ('game', dict),
+])
+
+RunningProcess = NamedTuple('RunningProcess', [
+    ('process', QProcess),
+    ('id', int),
 ])
 
 
@@ -64,10 +69,10 @@ class MainWindow(QMainWindow):
         
         self.MAIN_CONTENT_PADDING = 20
 
-        self.runningProcess = None
+        self.runningProcess: Optional[RunningProcess] = None
         self.library = library
         self.config = config
-        self.addGameWindow = AddGameWindow(self.library, self.config, self)
+        self.addGameWindow = AddGameWindow(self.library, self.config, self.refresh, self)
 
 
         # Sidebar
@@ -105,7 +110,7 @@ class MainWindow(QMainWindow):
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
             self.tiles.append(GameTileInfo(tile, game))
             self.scrollLayout.addWidget(tile)
-        self.selectedTile = None
+        self.selectedTile: Optional[int] = None
 
         self.scrollWidget = QWidget()
         self.scrollWidget.setLayout(self.scrollLayout)
@@ -214,27 +219,30 @@ class MainWindow(QMainWindow):
         if index >= self.scrollLayout.count():
             return
 
-        prevTile = self.tiles[self.selectedTile].tile if self.selectedTile is not None else None
+        prevTile: Optional[GameTile]
+        if self.selectedTile is not None:
+            prevTile = self.tiles[self.selectedTile].tile
+        else:
+            prevTile = None
         currTile = self.tiles[index].tile
         
         if animate:
             currTile.growAnimation.start()
-            if self.selectedTile is not None:
+            if prevTile is not None:
                 prevTile.growAnimation.stop()
                 prevTile.shrinkAnimation.start()
             self.scrollArea.ensureWidgetVisibleAnimated(currTile, 200)
         else:
-            if self.selectedTile is not None:
-                prevTile.imageSize = prevTile.baseImageSize
-            currTile.imageSize = currTile.expandedImageSize
+            if prevTile is not None:
+                prevTile.imageSize = prevTile.baseImageSize # type: ignore
+            currTile.imageSize = currTile.expandedImageSize # type: ignore
             self.scrollArea.ensureWidgetVisible(currTile, 200, 200)
         self.selectedTile = index
         
-        self.updateGameInfo()
+        self.updateGameInfo(self.tiles[index].game)
 
 
-    def updateGameInfo(self) -> None:
-        game = self.tiles[self.selectedTile].game
+    def updateGameInfo(self, game: dict) -> None:
         self.gameTitle.setText(game['name'])
         if 'description' not in game.keys() or game['description'] is None:
             self.gameDescription.setText('No description')
@@ -242,7 +250,7 @@ class MainWindow(QMainWindow):
             self.gameDescription.setText(game['description'])
         
         if self.runningProcess is not None:
-            if game['id'] == self.runningProcess[1]:
+            if game['id'] == self.runningProcess.id:
                 self.playButton.setText('Stop')
             else:
                 self.playButton.setText('Play')
@@ -250,11 +258,16 @@ class MainWindow(QMainWindow):
     
     def playButtonClicked(self) -> None:
         if self.playButton.text() == 'Play':
-            game: dict = self.tiles[self.selectedTile].game
+            if self.selectedTile is None:
+                return
+            
+            game = self.tiles[self.selectedTile].game
             self.launchGame(game)
             self.playButton.setText('Stop')
         else:
-            self.runningProcess[0].terminate()
+            assert self.runningProcess is not None, "Tried to stop non-existent RunningProcess"
+            
+            self.runningProcess.process.terminate()
 
     def launchGame(self, game: dict) -> None:
         if self.runningProcess is not None:
@@ -272,7 +285,7 @@ class MainWindow(QMainWindow):
                 args = []
             process.start(game['filepath'], args)
 
-        self.runningProcess: tuple = (process, game['id'])
+        self.runningProcess = RunningProcess(process, game['id'])
         
         process.finished.connect(self.processFinished)
     
@@ -292,7 +305,7 @@ class MainWindow(QMainWindow):
             self.scrollLayout.removeWidget(gameTile.tile)
             gameTile.tile.deleteLater()
         
-        self.tiles: list[GameTileInfo] = []
+        self.tiles = []
         
         for i, game in enumerate(self.library.games):
             image = storage.getLibraryImage(game['id'])
@@ -320,12 +333,12 @@ class MainWindow(QMainWindow):
         match e.key():
             case Qt.Key.Key_Left:
                 if not self.sidebar.hasFocus():
-                    if self.selectedTile == 0:
+                    if self.selectedTile == 0 or self.selectedTile is None:
                         self.sidebar.setFocus(Qt.FocusReason.OtherFocusReason)
                     else:
                         self.tileClicked(self.selectedTile - 1)
             case Qt.Key.Key_Right:
-                if self.sidebar.hasFocus():
+                if self.sidebar.hasFocus() or self.selectedTile is None:
                     self.tileClicked(0)
                 else:
                     self.tileClicked(self.selectedTile + 1)
@@ -400,7 +413,7 @@ class AnimatedScrollArea(QScrollArea):
     def xPos(self) -> int:
         return self._xPos
 
-    @xPos.setter
+    @xPos.setter # type: ignore
     def xPos(self, xPos: int) -> None:
         self._xPos = xPos
 

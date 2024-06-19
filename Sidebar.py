@@ -100,12 +100,13 @@ class CustomDelegate(QStyledItemDelegate):
     ICON_H_PADDING = 5
     ICON_R_PADDING = 5
     
-    def __init__(self, parent: QObject, text: QStaticText, icon: Optional[QIcon] = None) -> None:
+    def __init__(self, parent: QListWidget, text: QStaticText, icon: Optional[QIcon] = None) -> None:
         super().__init__(parent)
 
         self.text = text
-        self.icon: QIcon = icon
+        self.icon: Optional[QIcon] = icon
         self.iconSize: QSize = parent.iconSize() if icon is not None else QSize(0, 0)
+        print(parent.iconSize())
         
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex | QPersistentModelIndex) -> None:
@@ -113,24 +114,25 @@ class CustomDelegate(QStyledItemDelegate):
         
         super().paint(painter, option, index)
         
-        posRect = option.rect
+        # For some reason, QStyleOption doesn't expose its variables, so suppress the error
+        posRect: QRect = option.rect # type: ignore
         
         if self.icon is not None:
             pixmap = self.icon.pixmap(self.iconSize)
             iconPos = QPoint(posRect.left() + self.LEFT_PADDING, posRect.top() + self.ICON_H_PADDING)
             painter.drawPixmap(iconPos, pixmap)
         
-        painter.setFont(option.font)
-        textHeight = option.fontMetrics.height()
+        painter.setFont(option.font) # type: ignore
+        textHeight: int = option.fontMetrics.height() # type: ignore
         textRelativeYPos = (posRect.height() - textHeight) / 2 # Vertically center the text
         textXPos = posRect.left() + self.LEFT_PADDING + self.iconSize.width() + self.ICON_R_PADDING
         textPos = QPoint(textXPos, int(posRect.top() + textRelativeYPos))
         painter.drawStaticText(textPos, self.text)
 
     
-    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex | QPersistentModelIndex) -> QSize:
         textWidth = self.text.size().width()
-        textHeight = option.fontMetrics.height()
+        textHeight = option.fontMetrics.height() # type: ignore
         iconWidth = self.iconSize.width()
         iconHeight = self.iconSize.height() + 2 * self.ICON_H_PADDING
         width = int(self.LEFT_PADDING + iconWidth + self.ICON_R_PADDING + textWidth + self.RIGHT_PADDING)
