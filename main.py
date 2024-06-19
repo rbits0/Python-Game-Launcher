@@ -12,13 +12,10 @@ from GameTile import GameTile
 from AddGameWindow import AddGameWindow
 
 
-GameTileInfo = NamedTuple(
-    'GameTileInfo',
-    [
-        ('tile', GameTile),
-        ('game', dict),
-    ]
-)
+GameTileInfo = NamedTuple('GameTileInfo',[
+    ('tile', GameTile),
+    ('game', dict),
+])
 
 
 def main(argv) -> None:
