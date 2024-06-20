@@ -6,7 +6,7 @@ from PySide6.QtGui import * # type: ignore
 import qdarktheme # type: ignore
 
 import storage
-from storage import Config, Library
+from storage import Config, Library, Game
 from Sidebar import Sidebar, SidebarButton
 from GameTile import GameTile
 from AddGameWindow import AddGameWindow
@@ -14,7 +14,7 @@ from AddGameWindow import AddGameWindow
 
 class GameTileInfo(NamedTuple):
     tile: GameTile
-    game: dict
+    game: Game
 
 class RunningProcess(NamedTuple):
     process: QProcess
@@ -240,7 +240,7 @@ class MainWindow(QMainWindow):
         self.updateGameInfo(self.tiles[index].game)
 
 
-    def updateGameInfo(self, game: dict) -> None:
+    def updateGameInfo(self, game: Game) -> None:
         self.gameTitle.setText(game['name'])
         if 'description' not in game.keys() or game['description'] is None:
             self.gameDescription.setText('No description')
@@ -267,7 +267,7 @@ class MainWindow(QMainWindow):
             
             self.runningProcess.process.terminate()
 
-    def launchGame(self, game: dict) -> None:
+    def launchGame(self, game: Game) -> None:
         if self.runningProcess is not None:
             QMessageBox.warning(self, 'Game already running', 'Please close the running game before you launch another game')
             return
@@ -275,13 +275,13 @@ class MainWindow(QMainWindow):
         process = QProcess()
 
         if game['source'] == 'steam':
-            process.start('steam', [f'steam://rungameid/{game["appID"]}'])
+            process.start('steam', [f'steam://rungameid/{game["data"]["appID"]}'])
         elif game['source'] == 'native':
-            if 'args' in game.keys():
-                args = game['args']
-            else:
-                args = []
-            process.start(game['filepath'], args)
+            if 'args' not in game['data'].keys():
+                raise AttributeError("Entry in library file missing args")
+
+            args = game['data']['args']
+            process.start(game['data']['filepath'], args)
 
         self.runningProcess = RunningProcess(process, game['id'])
         

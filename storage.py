@@ -1,5 +1,5 @@
 import os, json
-from typing import Optional
+from typing import Optional, TypedDict, NotRequired, Any
 from PySide6.QtGui import QPixmap
 
 CONFIG_FOLDER = os.path.join(os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), 'PythonGameLauncher')
@@ -45,9 +45,18 @@ class Config:
 
 
 
+class Game(TypedDict):
+    name: str
+    id: int
+    source: str
+    tags: list[str]
+    description: NotRequired[str]
+    data: dict[str, Any]
+    
+
 class Library:
     def __init__(self) -> None:
-        self.games: list[dict]
+        self.games: list[Game]
         
         if os.path.getsize(GAMES_FILE) > 0:
             with open(GAMES_FILE, 'r') as file:
@@ -70,16 +79,26 @@ class Library:
         self,
         name: str,
         filepath: str,
-        args: Optional[list] = None,
-        tags: Optional[list] = None
+        args: Optional[list[str]] = None,
+        tags: Optional[list[str]] = None
     ) -> None:
+        if tags is None:
+            tags = []
+        if args is None:
+            args = []
+        
         id = self.getNewID()
 
-        game = {'name': name, 'filepath': filepath, 'id': id, 'source': 'native'}
-        if args is not None and len(args) > 0:
-            game['args'] = args
-        if tags is not None and len(tags) > 0:
-            game['tags'] = tags
+        game: Game = {
+            'name': name,
+            'id': id,
+            'source': 'native',
+            'tags': tags,
+            'data': {
+                'filepath': filepath,
+                'args': args
+            },
+        }
         
         self.games.append(game)
 
