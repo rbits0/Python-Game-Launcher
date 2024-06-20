@@ -21,7 +21,7 @@ class RunningProcess(NamedTuple):
     id: int
 
 
-def main(argv) -> None:
+def main(argv: list[str]) -> None:
     config = Config()
     library = Library()
 
