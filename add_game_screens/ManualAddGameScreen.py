@@ -109,7 +109,12 @@ class ManualAddGameScreen(QWidget):
 
         args = [self.argumentList.item(i).text() for i in range(self.argumentList.count())]
         
-        self.library.addNativeGame(name, filepath, args, tags)
+        gameTags = [
+            self.tagList.item(i).text()
+            for i in range(self.tagList.count())
+            if self.tagList.item(i).checkState() == Qt.CheckState.Checked
+        ]
+        self.library.addNativeGame(name, filepath, args, gameTags)
         self.library.save()
         
         self.nameInput.setText('')
