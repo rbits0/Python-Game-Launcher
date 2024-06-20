@@ -112,7 +112,6 @@ class CustomDelegate(QStyledItemDelegate):
         
         super().paint(painter, option, index)
         
-        # For some reason, QStyleOption doesn't expose its variables, so suppress the error
         posRect: QRect = option.rect
         
         if self.icon is not None:
