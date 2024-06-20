@@ -3,6 +3,7 @@ mypy==1.10.0
 mypy-extensions==1.0.0
 pyqtdarktheme==2.1.0
 PySide6==6.7.1
+PySide6-stubs @ git+https://github.com/python-qt-tools/PySide6-stubs@a29b3e01b3a4486226c654d603315c84b70fbc80
 PySide6_Addons==6.7.1
 PySide6_Essentials==6.7.1
 shiboken6==6.7.1

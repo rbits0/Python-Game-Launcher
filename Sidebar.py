@@ -113,15 +113,15 @@ class CustomDelegate(QStyledItemDelegate):
         super().paint(painter, option, index)
         
         # For some reason, QStyleOption doesn't expose its variables, so suppress the error
-        posRect: QRect = option.rect # type: ignore
+        posRect: QRect = option.rect
         
         if self.icon is not None:
             pixmap = self.icon.pixmap(self.iconSize)
             iconPos = QPoint(posRect.left() + self.LEFT_PADDING, posRect.top() + self.ICON_H_PADDING)
             painter.drawPixmap(iconPos, pixmap)
         
-        painter.setFont(option.font) # type: ignore
-        textHeight: int = option.fontMetrics.height() # type: ignore
+        painter.setFont(option.font)
+        textHeight: int = option.fontMetrics.height()
         textRelativeYPos = (posRect.height() - textHeight) / 2 # Vertically center the text
         textXPos = posRect.left() + self.LEFT_PADDING + self.iconSize.width() + self.ICON_R_PADDING
         textPos = QPoint(textXPos, int(posRect.top() + textRelativeYPos))
@@ -130,7 +130,7 @@ class CustomDelegate(QStyledItemDelegate):
     
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex | QPersistentModelIndex) -> QSize:
         textWidth = self.text.size().width()
-        textHeight = option.fontMetrics.height() # type: ignore
+        textHeight = option.fontMetrics.height()
         iconWidth = self.iconSize.width()
         iconHeight = self.iconSize.height() + 2 * self.ICON_H_PADDING
         width = int(self.LEFT_PADDING + iconWidth + self.ICON_R_PADDING + textWidth + self.RIGHT_PADDING)
