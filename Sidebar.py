@@ -105,7 +105,6 @@ class CustomDelegate(QStyledItemDelegate):
         self.text = text
         self.icon: Optional[QIcon] = icon
         self.iconSize: QSize = parent.iconSize() if icon is not None else QSize(0, 0)
-        print(parent.iconSize())
         
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex | QPersistentModelIndex) -> None:
