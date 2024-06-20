@@ -12,15 +12,13 @@ from GameTile import GameTile
 from AddGameWindow import AddGameWindow
 
 
-GameTileInfo = NamedTuple('GameTileInfo', [
-    ('tile', GameTile),
-    ('game', dict),
-])
+class GameTileInfo(NamedTuple):
+    tile: GameTile
+    game: dict
 
-RunningProcess = NamedTuple('RunningProcess', [
-    ('process', QProcess),
-    ('id', int),
-])
+class RunningProcess(NamedTuple):
+    process: QProcess
+    id: int
 
 
 def main(argv) -> None:
@@ -78,14 +76,14 @@ class MainWindow(QMainWindow):
         # Sidebar
 
         testButton1 = SidebarButton(
-            QIcon.fromTheme('view-sort-ascending-name'),
             QStaticText('Alphabetical order'),
             lambda: self.sortGamesByName(True),
+            icon = QIcon.fromTheme('view-sort-ascending-name'),
         )
         testButton2 = SidebarButton(
-            QIcon.fromTheme('view-sort-descending-name'),
             QStaticText('Alphabetical order'),
             lambda: self.sortGamesByName(False),
+            icon = QIcon.fromTheme('view-sort-descending-name'),
         )
         self.sidebar = Sidebar(buttons = [testButton1, testButton2])
         self.sidebar.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Expanding)

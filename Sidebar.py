@@ -5,11 +5,10 @@ from PySide6.QtCore import * # type: ignore
 from PySide6.QtGui import * # type: ignore
 
 
-SidebarButton = NamedTuple('SidebarButton', [
-    ('icon', QIcon),
-    ('text', QStaticText),
-    ('callback', Callable[[], None]),
-])
+class SidebarButton(NamedTuple):
+    text: QStaticText
+    callback: Callable[[], None]
+    icon: Optional[QIcon] = None
 
 
 class Sidebar(QListWidget):
