@@ -31,15 +31,6 @@ class GameTile(QLabel):
         self.setPixmap(self.imagePixmap.scaledToHeight(self._imageHeight, Qt.TransformationMode.SmoothTransformation))
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         
-        self.growAnimation = QPropertyAnimation(self, b'imageHeight')
-        self.growAnimation.setEndValue(self.expandedImageHeight)
-        self.growAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
-        self.growAnimation.setDuration(100)
-        self.shrinkAnimation = QPropertyAnimation(self, b'imageHeight')
-        self.shrinkAnimation.setEndValue(self.baseImageHeight)
-        self.shrinkAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
-        self.shrinkAnimation.setDuration(100)
-        
 
     def mousePressEvent(self, _e: QMouseEvent) -> None:
         self.clicked.emit()

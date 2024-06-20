@@ -125,6 +125,8 @@ class MainWindow(QMainWindow):
             self.expandedImageHeight + scrollBarHeight + self.MAIN_CONTENT_PADDING + 4
         )
         
+        self.runningTileAnimation: Optional[QParallelAnimationGroup] = None
+        
         
         # Buttons at the top
         
@@ -217,6 +219,7 @@ class MainWindow(QMainWindow):
     
     def tileClicked(self, index: int, animate: bool = True) -> None:
         """Select a tile and optionally start the selection animation"""
+        print("A")
         
         if index == self.selectedTile:
             return
@@ -231,18 +234,36 @@ class MainWindow(QMainWindow):
         currTile = self.tiles[index].tile
         
         if animate:
-            currTile.growAnimation.start()
+            if self.runningTileAnimation is not None:
+                self.runningTileAnimation.stop()
+
+            animationGroup = QParallelAnimationGroup()
+
+            growAnimation = QPropertyAnimation(currTile, b'imageHeight')
+            growAnimation.setEndValue(currTile.expandedImageHeight)
+            growAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+            growAnimation.setDuration(100)
+            animationGroup.addAnimation(growAnimation)
+            
             if prevTile is not None:
-                prevTile.growAnimation.stop()
-                prevTile.shrinkAnimation.start()
+                shrinkAnimation = QPropertyAnimation(prevTile, b'imageHeight')
+                shrinkAnimation.setEndValue(prevTile.baseImageHeight)
+                shrinkAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+                shrinkAnimation.setDuration(100)
+                animationGroup.addAnimation(shrinkAnimation)
+            
+            self.runningTileAnimation = animationGroup
+            animationGroup.start()
+
             self.scrollArea.ensureWidgetVisibleAnimated(currTile, 200)
         else:
             if prevTile is not None:
                 prevTile.imageHeight = prevTile.baseImageHeight # type: ignore
             currTile.imageHeight = currTile.expandedImageHeight # type: ignore
+
             self.scrollArea.ensureWidgetVisible(currTile, 200, 200)
+
         self.selectedTile = index
-        
         self.updateGameInfo(self.tiles[index].game)
 
 
