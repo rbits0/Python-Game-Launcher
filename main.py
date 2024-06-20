@@ -93,7 +93,8 @@ class MainWindow(QMainWindow):
         
         self.scrollLayout = QHBoxLayout()
         self.scrollLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, self.MAIN_CONTENT_PADDING, self.MAIN_CONTENT_PADDING)
-        scrollMargins = 20
+        self.scrollLayout.setSpacing(10)
+        scrollBarHeight = self.style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
         self.tiles: list[GameTileInfo] = []
         self.defaultImage = QPixmap(600, 900)
         self.defaultImage.fill(Qt.GlobalColor.white)
@@ -117,7 +118,12 @@ class MainWindow(QMainWindow):
         self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setFrameShape(QFrame.Shape.NoFrame)
-        self.scrollArea.setFixedHeight(self.expandedImageHeight + 2 * scrollMargins + 15)
+        # Extra 4 pixels I think is because:
+        #   tile.height() == tile.pixmap.height() + 2
+        #   scrollArea.height() = tile.height() + 2
+        self.scrollArea.setFixedHeight(
+            self.expandedImageHeight + scrollBarHeight + self.MAIN_CONTENT_PADDING + 4
+        )
         
         
         # Buttons at the top
@@ -183,7 +189,7 @@ class MainWindow(QMainWindow):
         gameInfoLayout.setContentsMargins(self.MAIN_CONTENT_PADDING, 0, 0, 0)
 
         
-        # Main contents (everything except sidebar)
+        # Main layouts
         
         mainContentsLayout = QVBoxLayout()
         mainContentsLayout.addLayout(topBar)
@@ -232,8 +238,8 @@ class MainWindow(QMainWindow):
             self.scrollArea.ensureWidgetVisibleAnimated(currTile, 200)
         else:
             if prevTile is not None:
-                prevTile.imageSize = prevTile.baseImageSize # type: ignore
-            currTile.imageSize = currTile.expandedImageSize # type: ignore
+                prevTile.imageHeight = prevTile.baseImageHeight # type: ignore
+            currTile.imageHeight = currTile.expandedImageHeight # type: ignore
             self.scrollArea.ensureWidgetVisible(currTile, 200, 200)
         self.selectedTile = index
         
@@ -380,7 +386,7 @@ class AnimatedScrollArea(QScrollArea):
         self.scrollAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
 
     def ensureWidgetVisibleAnimated(self, childWidget: QWidget, xMargin: int = 0, yMargin: int = 0) -> None:
-        contentsRect: QRect = childWidget.contentsRect()
+        contentsRect = childWidget.contentsRect()
         pos = childWidget.pos()
         scrollBarValue: int  = self.horizontalScrollBar().value()
         viewWidth = self.width()
@@ -388,11 +394,12 @@ class AnimatedScrollArea(QScrollArea):
         
         if isLeft:
             xPos = pos.x() - xMargin
-            doScroll = True if xPos < self.horizontalScrollBar().value() else False
+            doScroll = (xPos < self.horizontalScrollBar().value())
         else:
             xPosInLayout = pos.x() + contentsRect.width() + xMargin
             xPos = xPosInLayout - viewWidth
-            doScroll = True if xPos > self.horizontalScrollBar().value() else False
+            doScroll = (xPos > self.horizontalScrollBar().value())
+
         if doScroll:
             self.scrollAnimation.setEndValue(xPos)
             self.scrollAnimation.start()
