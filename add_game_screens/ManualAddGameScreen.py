@@ -34,10 +34,13 @@ class ManualAddGameScreen(QWidget):
         
         self.tagLabel = QLabel('Tags')
         self.tagList = QListWidget()
+        itemHeight = int(self.tagList.fontMetrics().height() * 1.5)
+        itemSizeHint = QSize(0, itemHeight)
         
         for i, tag in enumerate(self.config.tags):
             self.tagList.addItem(tag)
             self.tagList.item(i).setCheckState(Qt.CheckState.Unchecked)
+            self.tagList.item(i).setSizeHint(itemSizeHint)
 
         self.tagAddButton = QPushButton(QIcon.fromTheme('add'), '')
         self.tagAddButton.clicked.connect(self.addTag)
