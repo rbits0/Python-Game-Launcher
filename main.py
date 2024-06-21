@@ -125,7 +125,7 @@ class MainWindow(QMainWindow):
             self.expandedImageHeight + scrollBarHeight + self.MAIN_CONTENT_PADDING + 4
         )
         
-        self.runningTileAnimation: Optional[QParallelAnimationGroup] = None
+        self.runningAnimations = QSequentialAnimationGroup(self)
         
         
         # Buttons at the top
@@ -234,9 +234,6 @@ class MainWindow(QMainWindow):
         currTile = self.tiles[index].tile
         
         if animate:
-            if self.runningTileAnimation is not None:
-                self.runningTileAnimation.stop()
-
             animationGroup = QParallelAnimationGroup()
 
             growAnimation = QPropertyAnimation(currTile, b'imageHeight')
@@ -251,11 +248,15 @@ class MainWindow(QMainWindow):
                 shrinkAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
                 shrinkAnimation.setDuration(100)
                 animationGroup.addAnimation(shrinkAnimation)
-            
-            self.runningTileAnimation = animationGroup
-            animationGroup.start()
 
-            self.scrollArea.ensureWidgetVisibleAnimated(currTile, 200)
+            scrollAnimation = self.scrollArea.ensureWidgetVisibleAnimation(currTile, 200)
+            if scrollAnimation is not None:
+                animationGroup.addAnimation(scrollAnimation)
+            
+            if self.runningAnimations.state() == QAbstractAnimation.State.Stopped:
+                self.runningAnimations.clear()
+            self.runningAnimations.addAnimation(animationGroup)
+            self.runningAnimations.start(policy=QAbstractAnimation.DeletionPolicy.KeepWhenStopped)
         else:
             if prevTile is not None:
                 prevTile.imageHeight = prevTile.baseImageHeight # type: ignore
@@ -366,6 +367,10 @@ class MainWindow(QMainWindow):
                 if self.sidebar.hasFocus() or self.selectedTile is None:
                     self.tileClicked(0)
                 else:
+                    # Don't queue a bunch of animations at once
+                    
+                    # TODO: Check how many animations left
+                    
                     self.tileClicked(self.selectedTile + 1)
                 self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
             case Qt.Key.Key_Up:
@@ -402,11 +407,9 @@ class AnimatedScrollArea(QScrollArea):
         
         self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
 
-        self.scrollAnimation = QPropertyAnimation(self.horizontalScrollBar(), b'value')
-        self.scrollAnimation.setDuration(100)
-        self.scrollAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
-
-    def ensureWidgetVisibleAnimated(self, childWidget: QWidget, xMargin: int = 0, yMargin: int = 0) -> None:
+    def ensureWidgetVisibleAnimation(
+        self, childWidget: QWidget, xMargin: int = 0, yMargin: int = 0
+    ) -> QPropertyAnimation | None:
         contentsRect = childWidget.contentsRect()
         pos = childWidget.pos()
         scrollBarValue: int  = self.horizontalScrollBar().value()
@@ -422,8 +425,14 @@ class AnimatedScrollArea(QScrollArea):
             doScroll = (xPos > self.horizontalScrollBar().value())
 
         if doScroll:
-            self.scrollAnimation.setEndValue(xPos)
-            self.scrollAnimation.start()
+            scrollAnimation = QPropertyAnimation(self.horizontalScrollBar(), b'value')
+            scrollAnimation.setDuration(100)
+            scrollAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+            scrollAnimation.setEndValue(xPos)
+            return scrollAnimation
+        else:
+            return None
+            
     
     def wheelEvent(self, e: QWheelEvent) -> None:
         delta = e.angleDelta().y()
