@@ -219,7 +219,6 @@ class MainWindow(QMainWindow):
     
     def tileClicked(self, index: int, animate: bool = True) -> None:
         """Select a tile and optionally start the selection animation"""
-        print("A")
         
         if index == self.selectedTile:
             return
@@ -364,6 +363,8 @@ class MainWindow(QMainWindow):
                         return
 
                     if self.selectedTile == 0 or self.selectedTile is None:
+                        # TODO: Maybe wait until animation is finished?
+                        #       Or even better, require an extra keypress
                         self.sidebar.setFocus(Qt.FocusReason.OtherFocusReason)
                     else:
                         self.tileClicked(self.selectedTile - 1)
