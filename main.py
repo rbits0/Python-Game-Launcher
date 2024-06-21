@@ -359,6 +359,10 @@ class MainWindow(QMainWindow):
         match e.key():
             case Qt.Key.Key_Left:
                 if not self.sidebar.hasFocus():
+                    # Don't queue a bunch of animations at once
+                    if numAnimationsLeft(self.runningAnimations) > 1:
+                        return
+
                     if self.selectedTile == 0 or self.selectedTile is None:
                         self.sidebar.setFocus(Qt.FocusReason.OtherFocusReason)
                     else:
@@ -368,8 +372,8 @@ class MainWindow(QMainWindow):
                     self.tileClicked(0)
                 else:
                     # Don't queue a bunch of animations at once
-                    
-                    # TODO: Check how many animations left
+                    if numAnimationsLeft(self.runningAnimations) > 1:
+                        return
                     
                     self.tileClicked(self.selectedTile + 1)
                 self.scrollArea.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -389,6 +393,19 @@ class MainWindow(QMainWindow):
                 print(self.keyboardGrabber())
         
         return super().keyPressEvent(e)
+
+
+
+def numAnimationsLeft(animationGroup: QSequentialAnimationGroup) -> int:
+    '''
+    Returns the total number of animations left, *including the currently running one*
+    '''
+    
+    currAnimation = animationGroup.currentAnimation()
+    currIndex = animationGroup.indexOfAnimation(currAnimation)
+    total = animationGroup.animationCount()
+    
+    return total - currIndex
 
 
 
