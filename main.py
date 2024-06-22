@@ -462,14 +462,6 @@ class AnimatedScrollArea(QScrollArea):
         e.ignore()
         
 
-    @Property(int)
-    def xPos(self) -> int:
-        return self._xPos
-
-    @xPos.setter # type: ignore
-    def xPos(self, xPos: int) -> None:
-        self._xPos = xPos
-
 
 
 if __name__ == '__main__':
