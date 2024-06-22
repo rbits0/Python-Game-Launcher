@@ -10,6 +10,7 @@ from storage import Config, Library, Game
 from Sidebar import Sidebar, SidebarButton
 from GameTile import GameTile
 from AddGameWindow import AddGameWindow
+from CoupledPropertyAnimation import CoupledPropertyAnimation
 
 
 class GameTileInfo(NamedTuple):
@@ -225,30 +226,31 @@ class MainWindow(QMainWindow):
         if index >= self.scrollLayout.count():
             return
 
-        prevTile: Optional[GameTile]
+        currTile: Optional[GameTile]
         if self.selectedTile is not None:
-            prevTile = self.tiles[self.selectedTile].tile
+            currTile = self.tiles[self.selectedTile].tile
         else:
-            prevTile = None
-        currTile = self.tiles[index].tile
+            currTile = None
+        newTile = self.tiles[index].tile
         
         if animate:
             animationGroup = QParallelAnimationGroup()
 
-            growAnimation = QPropertyAnimation(currTile, b'imageHeight')
-            growAnimation.setEndValue(currTile.expandedImageHeight)
-            growAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
-            growAnimation.setDuration(100)
-            animationGroup.addAnimation(growAnimation)
+            tileAnimation: QPropertyAnimation
+            if currTile is not None:
+                # Animate both tiles at the same time
+                tileAnimation = CoupledPropertyAnimation(currTile, 'imageHeight', newTile, 'imageHeight')
+                tileAnimation.setEndValue(currTile.baseImageHeight)
+            else:
+                tileAnimation = QPropertyAnimation(newTile, b'imageHeight')
+                tileAnimation.setEndValue(newTile.expandedImageHeight)
             
-            if prevTile is not None:
-                shrinkAnimation = QPropertyAnimation(prevTile, b'imageHeight')
-                shrinkAnimation.setEndValue(prevTile.baseImageHeight)
-                shrinkAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
-                shrinkAnimation.setDuration(100)
-                animationGroup.addAnimation(shrinkAnimation)
+            tileAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+            tileAnimation.setDuration(100)
+            # tileAnimation.start()
+            animationGroup.addAnimation(tileAnimation)
 
-            scrollAnimation = self.scrollArea.ensureWidgetVisibleAnimation(currTile, 200)
+            scrollAnimation = self.scrollArea.ensureWidgetVisibleAnimation(newTile, 200)
             if scrollAnimation is not None:
                 animationGroup.addAnimation(scrollAnimation)
             
@@ -257,11 +259,11 @@ class MainWindow(QMainWindow):
             self.runningAnimations.addAnimation(animationGroup)
             self.runningAnimations.start(policy=QAbstractAnimation.DeletionPolicy.KeepWhenStopped)
         else:
-            if prevTile is not None:
-                prevTile.imageHeight = prevTile.baseImageHeight # type: ignore
-            currTile.imageHeight = currTile.expandedImageHeight # type: ignore
+            if currTile is not None:
+                currTile.imageHeight = currTile.baseImageHeight # type: ignore
+            newTile.imageHeight = newTile.expandedImageHeight # type: ignore
 
-            self.scrollArea.ensureWidgetVisible(currTile, 200, 200)
+            self.scrollArea.ensureWidgetVisible(newTile, 200, 200)
 
         self.selectedTile = index
         self.updateGameInfo(self.tiles[index].game)
