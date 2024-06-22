@@ -10,6 +10,7 @@
 - [ ] Create settings screen
     - [ ] Add custom sort/filter creation
 - [ ] Create "edit game" screen
+- [ ] Implement logging
 
 ## Future plans
 - [ ] Add grid view
