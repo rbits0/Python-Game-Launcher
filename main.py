@@ -254,7 +254,13 @@ class MainWindow(QMainWindow):
                 animationGroup.addAnimation(scrollAnimation)
             
             if self.runningAnimations.state() == QAbstractAnimation.State.Stopped:
-                self.runningAnimations.clear()
+                # self.runningAnimations.clear() sometimes causes an error.
+                # This is seemingly because of over-eager garbage collection,
+                # see https://stackoverflow.com/a/60410713.
+                # So instead, we remove animations one by one.
+                while self.runningAnimations.animationCount() > 0:
+                    self.runningAnimations.takeAnimation(0)
+
             self.runningAnimations.addAnimation(animationGroup)
             self.runningAnimations.start(policy=QAbstractAnimation.DeletionPolicy.KeepWhenStopped)
         else:
