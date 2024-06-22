@@ -16,6 +16,8 @@ class GameTile(QLabel):
         # I want all images to be the same size, but I also want to animate the width instead of the height,
         # so I convert the height to a width when the tile is created
         ratio = image.width() / image.height()
+        # GameTile seems to actually be slightly bigger than the image,
+        # so make image smaller so GameTile is correct size
         self.baseImageWidth = int(imageHeight * ratio - 2)
         self.expandedImageWidth = int(expandedImageHeight * ratio - 2)
         
