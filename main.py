@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
             if image is None:
                 image = self.defaultImage
 
-            tile = GameTile(image, self, self.imageHeight, self.expandedImageHeight)
+            tile = GameTile(image, self.imageHeight, self.expandedImageHeight, self)
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
             self.tiles.append(GameTileInfo(tile, game))
             self.scrollLayout.addWidget(tile)
@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
         #   tile.height() == tile.pixmap.height() + 2
         #   scrollArea.height() = tile.height() + 2
         self.scrollArea.setFixedHeight(
-            self.expandedImageHeight + scrollBarHeight + self.MAIN_CONTENT_PADDING + 4
+            int(self.expandedImageHeight + scrollBarHeight + self.MAIN_CONTENT_PADDING + 4)
         )
         
         self.runningAnimations = QSequentialAnimationGroup(self)
@@ -239,15 +239,14 @@ class MainWindow(QMainWindow):
             tileAnimation: QPropertyAnimation
             if currTile is not None:
                 # Animate both tiles at the same time
-                tileAnimation = CoupledPropertyAnimation(currTile, 'imageHeight', newTile, 'imageHeight')
-                tileAnimation.setEndValue(currTile.baseImageHeight)
+                tileAnimation = CoupledPropertyAnimation(currTile, 'imageWidth', newTile, 'imageWidth')
+                tileAnimation.setEndValue(currTile.baseImageWidth)
             else:
-                tileAnimation = QPropertyAnimation(newTile, b'imageHeight')
-                tileAnimation.setEndValue(newTile.expandedImageHeight)
+                tileAnimation = QPropertyAnimation(newTile, b'imageWidth')
+                tileAnimation.setEndValue(newTile.expandedImageWidth)
             
             tileAnimation.setEasingCurve(QEasingCurve.Type.InOutCubic)
             tileAnimation.setDuration(100)
-            # tileAnimation.start()
             animationGroup.addAnimation(tileAnimation)
 
             scrollAnimation = self.scrollArea.ensureWidgetVisibleAnimation(newTile, 200)
@@ -260,8 +259,8 @@ class MainWindow(QMainWindow):
             self.runningAnimations.start(policy=QAbstractAnimation.DeletionPolicy.KeepWhenStopped)
         else:
             if currTile is not None:
-                currTile.imageHeight = currTile.baseImageHeight # type: ignore
-            newTile.imageHeight = newTile.expandedImageHeight # type: ignore
+                currTile.imageWidth = currTile.baseImageWidth # type: ignore
+            newTile.imageWidth = newTile.expandedImageWidth # type: ignore
 
             self.scrollArea.ensureWidgetVisible(newTile, 200, 200)
 
@@ -339,7 +338,7 @@ class MainWindow(QMainWindow):
             if image is None:
                 image = self.defaultImage
 
-            tile = GameTile(image, self, self.imageHeight, self.expandedImageHeight)
+            tile = GameTile(image, self.imageHeight, self.expandedImageHeight, self)
             tile.clicked.connect(lambda i=i: self.tileClicked(i))
             self.tiles.append(GameTileInfo(tile, game))
             self.scrollLayout.addWidget(tile)

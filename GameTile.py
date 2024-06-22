@@ -6,17 +6,21 @@ from PySide6.QtGui import * # type: ignore
 class GameTile(QLabel):
     clicked = Signal()
 
-    def __init__(self, image: QPixmap, parent: Optional[QWidget] = None, imageHeight: int = 450, expandedImageHeight: int = 540) -> None:
+    def __init__(self, image: QPixmap, imageHeight: int, expandedImageHeight: int, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         
-        self.baseImageHeight = imageHeight - 2
-        self.expandedImageHeight = expandedImageHeight - 2
+        # Scale the image to 600x900 (or whatever x 900) first so the rounded corners are consistent
+        image = image.scaledToHeight(900, mode=Qt.TransformationMode.SmoothTransformation)
 
+
+        # I want all images to be the same size, but I also want to animate the width instead of the height,
+        # so I convert the height to a width when the tile is created
+        ratio = image.width() / image.height()
+        self.baseImageWidth = int(imageHeight * ratio - 2)
+        self.expandedImageWidth = int(expandedImageHeight * ratio - 2)
         
-        self._imageHeight = imageHeight
+        self._imageWidth = self.baseImageWidth
         
-        # Scale the image to 600x900 first so the rounded corners are consistent
-        image = image.scaled(600, 900, mode=Qt.TransformationMode.SmoothTransformation)
 
         # Image (with rounded corners)
         radius = 30
@@ -28,7 +32,7 @@ class GameTile(QLabel):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawRoundedRect(image.rect(), radius, radius)
         
-        self.setPixmap(self.imagePixmap.scaledToHeight(self._imageHeight, Qt.TransformationMode.SmoothTransformation))
+        self.setPixmap(self.imagePixmap.scaledToWidth(self._imageWidth, Qt.TransformationMode.SmoothTransformation))
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         
 
@@ -36,16 +40,16 @@ class GameTile(QLabel):
         self.clicked.emit()
 
     @Property(int)
-    def imageHeight(self) -> int:
-        return self._imageHeight
+    def imageWidth(self) -> int:
+        return self._imageWidth
     
-    @imageHeight.setter # type: ignore
-    def imageHeight(self, value: int) -> None:
-        if value == self.baseImageHeight or self.expandedImageHeight:
+    @imageWidth.setter # type: ignore
+    def imageWidth(self, value: int) -> None:
+        if value == self.baseImageWidth or self.expandedImageWidth:
             # If the animation is over, do a higher quality transformation
-            self.setPixmap(self.imagePixmap.scaledToHeight(value, Qt.TransformationMode.SmoothTransformation))
+            self.setPixmap(self.imagePixmap.scaledToWidth(value, Qt.TransformationMode.SmoothTransformation))
         else:
             # Do fast transformation while animating
-            self.setPixmap(self.imagePixmap.scaledToHeight(value, Qt.TransformationMode.FastTransformation))
+            self.setPixmap(self.imagePixmap.scaledToWidth(value, Qt.TransformationMode.FastTransformation))
 
-        self._imageHeight = value
+        self._imageWidth = value
