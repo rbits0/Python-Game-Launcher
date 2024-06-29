@@ -23,11 +23,11 @@ class CoupledPropertyAnimation(QPropertyAnimation):
         Initialise CoupledPropertyAnimation
 
         Args:
-            target1: Object with property 1
-            propertyName1: Name of property 1
-            target2: Object with property 2
-            propertyName2: Name of property 2
-            parent: Parent object. Defaults to None
+            target1 (QObject): Object with property 1
+            propertyName1 (str): Name of property 1
+            target2 (QObject): Object with property 2
+            propertyName2 (str): Name of property 2
+            parent (Optional[QObject]): Parent object. Defaults to None
 
         Raises:
             TypeError: Properties are not of type int
@@ -75,8 +75,8 @@ class CoupledPropertyAnimation(QPropertyAnimation):
         Set the start values
 
         Args:
-            value1: Start value of property 1
-            value2: Start value of property 2
+            value1 (int): Start value of property 1
+            value2 (int): Start value of property 2
         '''        
 
         self.coupledProperty.setEndValues(value1, value2)
