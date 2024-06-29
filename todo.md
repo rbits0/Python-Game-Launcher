@@ -1,11 +1,12 @@
 ## Important
 - [x] Fix checklist style
 - [x] Fix carousel shaking when switching items
-- [ ] Fix different aspect ratios for images
+- [x] Fix different aspect ratios for images
 - [ ] Add keyboard navigation
 - [ ] Add controller navigation
 - [ ] Create "add game" screen
     - [ ] Manually add game
+        - [ ] Set image
     - [ ] Import from Steam
     - [ ] Import from Heroic
 - [ ] Create settings screen
