@@ -238,9 +238,10 @@ class MainWindow(QMainWindow):
 
             tileAnimation: QPropertyAnimation
             if currTile is not None:
-                # Animate both tiles at the same time
+                # Shrink currTile and grow newTile at the same time
                 tileAnimation = CoupledPropertyAnimation(currTile, 'imageWidth', newTile, 'imageWidth')
-                tileAnimation.setEndValue(currTile.baseImageWidth)
+                tileAnimation.setStartValues(currTile.expandedImageWidth, newTile.baseImageWidth)
+                tileAnimation.setEndValues(currTile.baseImageWidth, newTile.expandedImageWidth)
             else:
                 tileAnimation = QPropertyAnimation(newTile, b'imageWidth')
                 tileAnimation.setEndValue(newTile.expandedImageWidth)

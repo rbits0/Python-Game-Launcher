@@ -4,10 +4,11 @@ from PySide6.QtCore import QAbstractAnimation, QPropertyAnimation, QObject, Prop
 
 class CoupledPropertyAnimation(QPropertyAnimation):
     '''
-    Animation that switches the values of 2 properties. Properties must be ints.
+    Animation that animates the values of 2 properties. Properties must be ints.
     
-    You can change the start and end value of property 1 by calling setStartValue and setEndValue.
-    These are also the end value and the start value respectively of property 2.
+    Ensures that if each property has the same range, they both change at the exact same rate each frame
+    
+    You must the start and end value of properties by calling setStartValues and setEndValues.
     '''
     
     def __init__(
@@ -18,6 +19,19 @@ class CoupledPropertyAnimation(QPropertyAnimation):
         propertyName2: str,
         parent: Optional[QObject] = None
     ) -> None:
+        '''
+        Initialise CoupledPropertyAnimation
+
+        Args:
+            target1: Object with property 1
+            propertyName1: Name of property 1
+            target2: Object with property 2
+            propertyName2: Name of property 2
+            parent: Parent object. Defaults to None
+
+        Raises:
+            TypeError: Properties are not of type int
+        '''        
         if (
             not isinstance(target1.property(propertyName1), int)
         ) or (
@@ -25,43 +39,16 @@ class CoupledPropertyAnimation(QPropertyAnimation):
         ):
             raise TypeError("Properties must be of type int")
         
-        
+
         self.coupledProperty = _CoupledProperty(target1, propertyName1, target2, propertyName2, parent)
         
-        self.startManuallySet = False
-        self.endManuallySet = False
-        self._initialiseValues()
-
+        
         super().__init__(self.coupledProperty, b'coupledProperty', parent)
 
     
-    def _initialiseValues(self) -> None:
-        '''
-        Gets the start values (which are also the end values) from the properties.
-        Do not call this after the animation has already started.
-        
-        Will not set value if already set manually
-        (via setStartValue or setEndValue).
-        '''
-        if not self.startManuallySet:
-            startValue: int = self.coupledProperty.target1.property(
-                self.coupledProperty.propertyName1
-            )
-            self.coupledProperty.setStartValue(startValue)
-            
-        if not self.endManuallySet:
-            endValue: int = self.coupledProperty.target2.property(
-                self.coupledProperty.propertyName2
-            )
-            self.coupledProperty.setEndValue(endValue)
-        
-    
     def _onStart(self) -> None:
-        # Doing this here as well as __init__ in case property is changed after CoupledPropertyAnimation is already created
-        self._initialiseValues()
-
-        super().setStartValue(self.coupledProperty.startValue)
-        super().setEndValue(self.coupledProperty.endValue)
+        if self.startValue() is None or self.endValue() is None:
+            raise RuntimeError('Must set start and end values')
     
     def updateState(self, newState: QAbstractAnimation.State, oldState: QAbstractAnimation.State) -> None:
         # If state changed to Running
@@ -71,16 +58,45 @@ class CoupledPropertyAnimation(QPropertyAnimation):
         super().updateState(newState, oldState)
 
 
-    # Start and end value is stored in coupledProperty, and actually set when the animation is started.
-    # This is so I can set them in __init__ before the object is initialised
+    def setStartValues(self, value1: int, value2: int) -> None:
+        '''
+        Set the start values
+
+        Args:
+            value1: Start value of property 1
+            value2: Start value of property 2
+        '''        
+        
+        self.coupledProperty.setStartValues(value1, value2)
+        super().setStartValue(value1)
+
+    def setEndValues(self, value1: int, value2: int) -> None:
+        '''
+        Set the start values
+
+        Args:
+            value1: Start value of property 1
+            value2: Start value of property 2
+        '''        
+
+        self.coupledProperty.setEndValues(value1, value2)
+        super().setEndValue(value1)
 
     def setStartValue(self, value: int) -> None:
-        self.coupledProperty.setStartValue(value)
-        self.startManuallySet = True
-
+        '''
+        Set both start values to value
+        
+        Not intended to be used, it is only included for compatibility with QPropertyAnimation.
+        '''
+        self.setStartValues(value, value)
+    
     def setEndValue(self, value: int) -> None:
-        self.coupledProperty.setEndValue(value)
-        self.endManuallySet = True
+        '''
+        Set both end values to value
+        
+        Not intended to be used, it is only included for compatibility with QPropertyAnimation.
+        '''
+        self.setEndValues(value, value)
             
 
 
@@ -99,26 +115,54 @@ class _CoupledProperty(QObject):
         self.target2 = target2
         self.propertyName2 = propertyName2
         
-        self.startValue: Optional[int] = None
-        '''Start value of property 1'''
-
-        self.endValue: Optional[int] = None
-        '''End value of property 1 (start value of property 2)'''
+        self._coupledProperty: Optional[int] = None
+        self.startValue1: Optional[int] = None
+        self.endValue1: Optional[int] = None
+        self.startValue2: Optional[int] = None
+        self.endValue2: Optional[int] = None
+        
+        self.value2Ratio: Optional[float] = None
+        'Ratio of property2 range to property 1 range'
         
         super().__init__(parent)
     
     
-    def setStartValue(self, value: int) -> None:
+    def setStartValues(self, value1: int, value2: int) -> None:
         '''
-        Sets the start value of property 1.
+        Sets the start value of properties
         You should not call this after the animation has already started.
         '''
-        self.startValue = value
-        self._coupledProperty = value
 
-    def setEndValue(self, value: int) -> None:
-        'Sets the end value of property 1 (start value of property 2)'
-        self.endValue = value
+        self.startValue1 = value1
+        self.startValue2 = value2
+
+        self._coupledProperty = value1
+
+    def setEndValues(self, value1: int, value2: int) -> None:
+        'Sets the end value of properties'
+        self.endValue1 = value1
+        self.endValue2 = value2
+
+    def calculateValues(self) -> None:
+        '''
+        Calculate values once based on start and end values,
+        so we don't have to calculate them every frame.
+        '''
+        # I don't know if this is even necessary, but why not
+
+        assert (
+            self._coupledProperty is not None and
+            self.startValue1 is not None and
+            self.endValue1 is not None and
+            self.startValue2 is not None and
+            self.endValue2 is not None
+        ), '''
+            Must set start and end values for CoupledProperty
+        '''
+
+        value1Range = self.endValue1 - self.startValue1
+        value2Range = self.endValue2 - self.startValue2
+        self.value2Ratio = value2Range / value1Range
         
         
     @Property(int)
@@ -127,12 +171,26 @@ class _CoupledProperty(QObject):
     
     @coupledProperty.setter # type: ignore
     def coupledProperty(self, value: int) -> None:
-        assert self.startValue is not None and self.endValue is not None, 'Must set start values for CoupledProperty'
+        assert (
+            self._coupledProperty is not None and
+            self.startValue1 is not None and
+            self.endValue1 is not None and
+            self.startValue2 is not None and
+            self.endValue2 is not None
+        ), '''
+            Must set start and end values for CoupledProperty
+        '''
         
+        if self.value2Ratio is None:
+            self.calculateValues()
+            assert self.value2Ratio is not None
+        
+        # Set property 1
         self.target1.setProperty(self.propertyName1, value)
         
-        differenceSinceStart = value - self.startValue
-        property2Value = self.endValue - differenceSinceStart
+        # Set property 2
+        differenceSinceStart = value - self.startValue1
+        property2Value = self.startValue2 + int(self.value2Ratio * differenceSinceStart)
         self.target2.setProperty(self.propertyName2, property2Value)
 
         self._coupledProperty = value
